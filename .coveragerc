@@ -1,0 +1,6 @@
+[run]
+source = animalguessinggame
+omit = 
+    tests/*
+    autoapp.py
+
