@@ -8,7 +8,12 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
+import random
+
+
+import os
 from flask_login import login_required, login_user, logout_user
 
 from animalguessinggame.extensions import login_manager
@@ -75,3 +80,36 @@ def about():
     """About page."""
     form = LoginForm(request.form)
     return render_template("public/about.html", form=form)
+
+# Exemple dans votre view.py
+
+from flask import redirect, url_for, render_template
+
+# Ajoutez cela à votre fichier view.py
+from flask import jsonify
+
+@blueprint.route('/generate_image/', methods=['GET', 'POST'])  # Ajoutez 'POST' à la liste des méthodes autorisées
+def generate_image():
+    # Obtenez le chemin de l'image aléatoire
+    image_path = get_random_image_path()
+
+    # Vérifiez si un chemin d'image a été obtenu
+    if image_path:
+        return render_template('public/image_page.html', image_path=image_path)
+    else:
+        return render_template('public/home.html')  # Ajoutez une page pour gérer le cas où aucune image n'est disponible
+
+
+
+
+
+
+def get_random_image_path():
+    images_folder = os.path.join(current_app.root_path, 'static', 'images')
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    if image_files:
+        random_image = random.choice(image_files)
+        return f'/images/{random_image}'
+    else:
+        return None
