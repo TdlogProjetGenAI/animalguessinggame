@@ -1,29 +1,13 @@
-<!-- home.html -->
 {% extends "layout.html" %}
+
 {% block content %}
-    <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="container mt-5">
     <div class="jumbotron text-center">
-        <div class="container">
-            <h1 class="display-3">Welcome to AnimalGuessingGame</h1>
-        </div>
-        <h1 class="display-3">Clique sur "Générer" pour commencer à jouer</h1>
-        
-        <!-- Ajout du bouton "Générer" -->
-        <form id="generateForm" action="{{ url_for('public.generate_image') }}" method="post">
-            <button type="submit" class="btn btn-primary btn-lg">Générer</button>
-        </form>
+      <h1 class="display-3">Bienvenue sur AnimalGuessingGame</h1>
+      <p class="lead">Cliquez sur "Jouer" pour commencer</p>
 
-    
-    </div><!-- /.jumbotron -->
-
-    <!-- Inclure le fichier JavaScript -->
-    <script src="{{ url_for('static', filename='main_gen.js', _external=True) }}"></script>
+      <!-- Bouton pour accéder à la page de génération d'image -->
+      <a href="{{ url_for('public.generate_image') }}" class="btn btn-primary btn-lg">Jouer</a>
+    </div>
+  </div>
 {% endblock %}
-
-
-
-
-
-
-
-  

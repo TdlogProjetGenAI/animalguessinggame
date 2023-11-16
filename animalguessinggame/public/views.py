@@ -88,20 +88,30 @@ from flask import redirect, url_for, render_template
 # Ajoutez cela à votre fichier view.py
 from flask import jsonify
 
-@blueprint.route('/generate_image/', methods=['GET', 'POST'])  # Ajoutez 'POST' à la liste des méthodes autorisées
+# Importez les modules nécessaires
+from flask import jsonify
+
+# ...
+
+# Importez le module render_template depuis Flask
+from flask import render_template, request
+# Importez le module render_template depuis Flask
+from flask import render_template, request
+
+# Importez le module render_template depuis Flask
+from flask import render_template, request
+
+@blueprint.route('/generate_image/', methods=['GET', 'POST'])
 def generate_image():
-    # Obtenez le chemin de l'image aléatoire
+    
+    if request.method == 'POST':
+        prompt_value = request.form.get('prompt', '')
+        if prompt_value.lower() == "chat":
+            return render_template('public/image_page.html', image_path=image_path, congratulations_message="Félicitations, vous avez gagné!")
+
+    
     image_path = get_random_image_path()
-
-    # Vérifiez si un chemin d'image a été obtenu
-    if image_path:
-        return render_template('public/image_page.html', image_path=image_path)
-    else:
-        return render_template('public/home.html')  # Ajoutez une page pour gérer le cas où aucune image n'est disponible
-
-
-
-
+    return render_template('public/image_page.html', image_path=image_path)
 
 
 def get_random_image_path():
@@ -113,3 +123,11 @@ def get_random_image_path():
         return f'/images/{random_image}'
     else:
         return None
+    
+def animal(): 
+    dict = {0: "chien", 1: "cheval", 
+            2 : "elephant", 3: "papillon", 4: "poule", 
+            5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
+            9: "écureuil"}
+    k=random.randint(0,9)
+    return(dict[k])
