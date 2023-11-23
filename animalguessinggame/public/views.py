@@ -20,6 +20,20 @@ from animalguessinggame.public.forms import LoginForm
 from animalguessinggame.user.forms import RegisterForm
 from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, random_split
+from torchvision import datasets, transforms, models
+import torch.optim as optim
+from PIL import Image
+import torch
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
+import os 
+from flask import current_app
+
+from .classif_animals10 import ResNetClassifier, classifie_animals10
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -91,31 +105,15 @@ def about():
     form = LoginForm(request.form)
     return render_template("public/about.html", form=form)
 
-# Exemple dans votre view.py
 
 from flask import redirect, url_for, render_template
 
-# Ajoutez cela à votre fichier view.py
+
 from flask import jsonify
 
-# Importez les modules nécessaires
-from flask import jsonify
 
-# ...
-
-# Importez le module render_template depuis Flask
 from flask import render_template, request
-# @blueprint.route('/generate_number', methods=['GET', 'POST'])
-# def generate_number():
-#     #images_list_path = get_random_number_path()
-#     return render_template('public/number_page.html')
 
-# from flask_wtf import FlaskForm
-# from wtforms import StringField, SubmitField
-
-# class GenerateImageForm(FlaskForm):
-#     prompt = StringField('Prompt')
-#     submit = SubmitField('Soumettre')
 
 import time
 
@@ -134,7 +132,7 @@ def generate_image():
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
-        if prompt_value == "chat":
+        if prompt_value == classifie_animals10(image_path):
             congratulations_message = "Félicitations, vous avez gagné!"
         else:
             congratulations_message = "Essaie encore"
@@ -144,7 +142,6 @@ def generate_image():
 
 @blueprint.route('/replay/', methods=['GET'])
 def replay():
-    # Réinitialisez la variable de session pour le prompt et générez une nouvelle image
     session.pop('current_image', None)
     return redirect(url_for('public.generate_image'))
 
@@ -153,6 +150,7 @@ def generate_number():
     form = GenerateImageForm()
     images_list_path = session.get('current_images', get_random_number_path())
     congratulations_message = None
+
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
@@ -167,7 +165,7 @@ def generate_number():
 
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
-    # Réinitialisez la variable de session pour la liste d'images et générez une nouvelle liste
+  
     session.pop('current_images', None)
     return redirect(url_for('public.generate_number'))
 
@@ -181,14 +179,7 @@ def get_random_image_path():
         return f'/images_animals10/{random_image}'
     else:
         return None
-    
-def animal(): 
-    dict = {0: "chien", 1: "cheval", 
-            2 : "elephant", 3: "papillon", 4: "poule", 
-            5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
-            9: "écureuil"}
-    k=random.randint(0,9)
-    return(dict[k])
+
 
 def get_random_number_path():
     images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
@@ -202,4 +193,32 @@ def get_random_number_path():
         return images_list
     else:
         return None
+########################
+
+
+
+dict = {0: "chien", 1: "cheval", 
+            2 : "elephant", 3: "papillon", 4: "poule", 
+            5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
+            9: "écureuil"}
+
+def classifie_animals10(image_path):  
+    
+    model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals10.pt')
+    model=torch.load(model_chemin, map_location='cpu')
+    image=Image.open(image_path)
+
+    T = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    image=T(image)
+    image=image.unsqueeze(0)
+    with torch.no_grad():
+        x = model(image)[0]
+
+    predicted_class = int(torch.argmax(x).item())
+
+    return dict[predicted_class]
     
