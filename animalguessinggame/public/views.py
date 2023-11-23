@@ -202,23 +202,4 @@ dict = {0: "chien", 1: "cheval",
             5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
             9: "écureuil"}
 
-def classifie_animals10(image_path):  
-    
-    model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals10.pt')
-    model=torch.load(model_chemin, map_location='cpu')
-    image=Image.open(image_path)
-
-    T = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    image=T(image)
-    image=image.unsqueeze(0)
-    with torch.no_grad():
-        x = model(image)[0]
-
-    predicted_class = int(torch.argmax(x).item())
-
-    return dict[predicted_class]
     
