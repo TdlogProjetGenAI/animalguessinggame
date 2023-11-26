@@ -24,11 +24,39 @@ class ResNetClassifier(nn.Module):
         x=self.resnet(x)
         return x
 
+class Classifier_mnist(nn.Module):
+    def __init__(self, num_classes=10):
+        super(Classifier_mnist, self).__init__()
+        self.mod=nn.Sequential(
+            nn.Conv2d(1,6,5,1,padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(6,16,5,1,padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        self.mod2=nn.Sequential(
+            nn.Linear(784,100),
+            nn.ReLU(),
+            nn.Linear(100,10),
+        )
+
+
+    def forward(self, x):
+        x=self.mod(x)
+        x=x.view(x.size(0),-1)
+        return self.mod2(x)
+    
 
 dict = {0: "chien", 1: "cheval", 
             2 : "elephant", 3: "papillon", 4: "poule", 
             5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
             9: "écureuil"}
+dict_eng = {0: "dog", 1: "horse", 
+               2: "elephant", 3: "butterfly", 4: "chicken", 
+               5: "cat", 6: "cow", 7: "sheep", 8: "spider", 
+               9: "squirrel"}
+
 
 def classifie_animals10(image_path):
     model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals10.pt')
@@ -44,12 +72,26 @@ def classifie_animals10(image_path):
     with torch.no_grad():
         x = model(image)[0]
     predicted_class = int(torch.argmax(x).item())
-    return dict[predicted_class]
+    return [dict[predicted_class], dict_eng[predicted_class]]
 
-
+def classifie_animals90(image_path):
+    model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals90.pt')
+    model = torch.load(model_chemin, map_location='cpu')
+    image=Image.open(image_path)
+    T = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    image=T(image)
+    image=image.unsqueeze(0)
+    with torch.no_grad():
+        x = model(image)[0]
+    predicted_class = int(torch.argmax(x).item())
+    return [animaux[predicted_class], animaux_eng[predicted_class]]
 ######
 def classifie_mnist(image__list_path):
-    model=ResNetClassifier()
+    model=Classifier_mnist()
     model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_minst.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model.eval()
@@ -57,6 +99,7 @@ def classifie_mnist(image__list_path):
     for x  in image__list_path:
         image=Image.open(x)
         T1 = transforms.Compose([
+        transforms.Resize((28, 28)),
         transforms.ToTensor()
         ])
         image=T1(image)
@@ -65,7 +108,75 @@ def classifie_mnist(image__list_path):
             x = model(image)[0]
 
         ans.append(int(torch.argmax(x).item()))
-    return concat(ans)
+    return [concat(ans), concat_eng(ans)]
+########
+
+
+animaux_liste_eng = [
+    'antelope', 'badger', 'bat', 'bear', 'bee', 'beetle', 'bison', 'boar', 'butterfly', 'cat',
+    'caterpillar', 'chimpanzee', 'cockroach', 'cow', 'coyote', 'crab', 'crow', 'deer', 'dog',
+    'dolphin', 'donkey', 'dragonfly', 'duck', 'eagle', 'elephant', 'flamingo', 'fly', 'fox',
+    'goat', 'goldfish', 'goose', 'gorilla', 'grasshopper', 'hamster', 'hare', 'hedgehog', 'hippopotamus',
+    'hornbill', 'horse', 'hummingbird', 'hyena', 'jellyfish', 'kangaroo', 'koala', 'ladybugs', 'leopard',
+    'lion', 'lizard', 'lobster', 'mosquito', 'moth', 'mouse', 'octopus', 'okapi', 'orangutan', 'otter',
+    'owl', 'ox', 'oyster', 'panda', 'parrot', 'pelecaniformes', 'penguin', 'pig', 'pigeon', 'porcupine',
+    'possum', 'raccoon', 'rat', 'reindeer', 'rhinoceros', 'sandpiper', 'seahorse', 'seal', 'shark', 'sheep',
+    'snake', 'sparrow', 'squid', 'squirrel', 'starfish', 'swan', 'tiger', 'turkey', 'turtle', 'whale', 'wolf',
+    'wombat', 'woodpecker', 'zebra'
+]
+
+animaux_eng = {i: animal for i, animal in enumerate(animaux_liste_eng)}
+
+animaux_liste = [
+    'antilope', 'blaireau', 'chauve-souris', 'ours', 'abeille', 'scarabée', 'bison', 'sanglier', 'papillon', 'chat',
+    'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
+    'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
+    'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
+    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 'papillon de nuit',
+    'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 'panda', 'perroquet', 'pélécaniformes',
+    'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 'rat', 'renne', 'rhinocéros', 'bécasse',
+    'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 'calmar', 'écureuil', 'étoile de mer', 'cygne',
+    'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
+]
+
+animaux = {i: animal for i, animal in enumerate(animaux_liste)}
+
+
+######
+chiffre = {0 : 'zéro',
+           1 : 'un',
+           2 : 'deux',
+           3 : 'trois',
+           4 : 'quatre',
+           5 : 'cinq',
+           6 : 'six',
+           7 : 'sept',
+           8 : 'huit',
+           9 : 'neuf',
+           }
+
+dizaine = {1 : 'dix',
+           2 : 'vingt',
+           3 : 'trente',
+           4 : 'quarante',
+           5 : 'cinquante',
+           6 : 'soixante',
+           7 : 'soixante dix',
+           8 : 'quatre vingt',
+           9 : 'quatre vingt dix'
+           }
+
+dix_vingt = {0 : 'dix',
+             1 : 'onze',
+             2 : 'douze',
+             3 : 'treize',
+             4 : 'quatorze',
+             5 : 'quize',
+             6 : 'seize',
+             7 : 'dix sept',
+             8 : 'dix huit',
+             9 : 'dix neuf'
+            }
 
 def concat(L):
     n = len(L)
@@ -78,12 +189,21 @@ def concat(L):
             string.append(chiffre[L[0]]+' mille')
         #gestion des centaines
         if L[1] != 0 and L[1] != 1:
-            string.append(chiffre[L[1]]+" "+'cents')
+            if L[2] == 0 and L[3] == 0:
+                string.append(chiffre[L[1]]+" "+'cents')
+            else:
+                string.append(chiffre[L[1]]+ " " +'cent')
         if L[1] == 1:
             string.append('cent')
         #gestion des dizaines et unités
         if L[2] != 7 and L[2] != 9 and L[2] != 0 and L[2] != 1:
-            string.append(dizaine[L[2]])
+            if L[2] != 8:
+                string.append(dizaine[L[2]])
+            if L[2] == 8:
+                if L[3] == 0:
+                    string.append("quatre vingts")
+                if L[3] != 0:
+                    string.append(dizaine[L[2]])
             if L[3] != 0 :
                 if L[3] == 1 and L[2] != 8:
                     string.append('et '+ chiffre[L[3]])
@@ -109,12 +229,21 @@ def concat(L):
             return 'zéro'
         #gestion des centaines
         if L[0] != 0 and L[0] != 1:
-            string.append(chiffre[L[0]]+" "+'cents')
+            if L[1] == 0 and L[2] == 0:
+                string.append(chiffre[L[0]]+" "+'cents')
+            else:
+                string.append(chiffre[L[0]]+" " +"cent")
         if L[0] == 1:
             string.append('cent')
         #gestion des dizaines et unités
         if L[1] != 7 and L[1] != 9 and L[1] != 0 and L[1] != 1:
-            string.append(dizaine[L[1]])
+            if L[1] != 8:
+                string.append(dizaine[L[1]])
+            if L[1] == 8:
+                if L[2] == 0:
+                    string.append("quatre vingts")
+                if L[2] != 0:
+                    string.append(dizaine[L[1]])
             if L[2] != 0 :
                 if L[2] == 1 and L[1] != 8:
                     string.append('et '+ chiffre[L[2]])
@@ -140,7 +269,13 @@ def concat(L):
             return 'zéro'
     #gestion des dizaines et unités
         if L[0] != 7 and L[0] != 9 and L[0] != 0 and L[0] != 1:
-            string.append(dizaine[L[0]])
+            if L[0] != 8:
+                string.append(dizaine[L[0]])
+            if L[0] == 8:
+                if L[1] == 0:
+                    string.append("quatre vingts")
+                if L[1] != 0:
+                    string.append(dizaine[L[0]])
             if L[1] != 0 :
                 if L[1] == 1 and L[0] != 8:
                     string.append('et '+ chiffre[L[1]])
@@ -167,5 +302,85 @@ def concat(L):
         return 'ERROR'
     rep = ''
     for i in string:
-        rep += i+' '
+        rep += i +' '
     return rep[:-1]
+
+
+def concat_eng(L):
+    n = len(L)
+    string = []
+    if n == 4:
+        if L == [0, 0, 0, 0]:
+            return 'zero'
+        # Handling thousands
+        if L[0] != 0:
+            string.append(digits[L[0]] + ' thousand')
+        # Handling hundreds
+        if L[1] != 0 and L[1] != 1:
+            string.append(digits[L[1]] + " " + 'hundred')
+        if L[1] == 1:
+            string.append('one hundred')
+        # Handling tens and units
+        if L[2] != 0:
+            if L[2] == 1:
+                if L[3] == 0:
+                    string.append('ten')
+                else:
+                    string.append(teens[L[3]])
+            else:
+                string.append(tens[L[2]])
+                if L[3] != 0:
+                    string.append(digits[L[3]])
+        elif L[3] != 0:
+            string.append(digits[L[3]])
+    elif n == 3:
+        if L == [0, 0, 0]:
+            return 'zero'
+        # Handling hundreds
+        if L[0] != 0 and L[0] != 1:
+            string.append(digits[L[0]] + " " + 'hundred')
+        if L[0] == 1:
+            string.append('one hundred')
+        # Handling tens and units
+        if L[1] != 0:
+            if L[1] == 1:
+                if L[2] == 0:
+                    string.append('ten')
+                else:
+                    string.append(teens[L[2]])
+            else:
+                string.append(tens[L[1]])
+                if L[2] != 0:
+                    string.append(digits[L[2]])
+        elif L[2] != 0:
+            string.append(digits[L[2]])
+    elif n == 2:
+        if L == [0, 0]:
+            return 'zero'
+        # Handling tens and units
+        if L[0] != 0:
+            if L[0] == 1:
+                if L[1] == 0:
+                    string.append('ten')
+                else:
+                    string.append(teens[L[1]])
+            else:
+                string.append(tens[L[0]])
+                if L[1] != 0:
+                    string.append(digits[L[1]])
+        elif L[1] != 0:
+            string.append(digits[L[1]])
+    elif n == 1:
+        string.append(digits[L[0]])
+    else:
+        return 'ERROR'
+
+    rep = ''
+    for i in string:
+        rep += i + ' '
+    return rep[:-1]
+
+
+digits = {0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine'}
+tens = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty', 6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'}
+teens = {0: 'ten', 1: 'eleven', 2: 'twelve', 3: 'thirteen', 4: 'fourteen', 5: 'fifteen', 6: 'sixteen', 7: 'seventeen', 8: 'eighteen', 9: 'nineteen'}

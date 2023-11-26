@@ -12,6 +12,15 @@ from flask import (
 )
 import random
 
+#import pretty_midi
+from scipy.io import wavfile
+import IPython
+
+from keras.models import load_model
+import matplotlib.pyplot as plt
+import numpy as np
+import glob
+
 import os
 from flask_login import login_required, login_user, logout_user
 
@@ -32,9 +41,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os 
 from flask import current_app
+#from pydub import AudioSegment
+import numpy as np
 
-from .classif_animals10 import ResNetClassifier, classifie_animals10
 
+import numpy as np
+from scipy.io.wavfile import write
+from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90
+#from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
 # Assurez-vous d'importer StringField et SubmitField
@@ -132,7 +146,8 @@ def generate_image():
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
-        if prompt_value == classifie_animals10(image_path):
+        anws = classifie_animals10(image_path)
+        if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné!"
         else:
             congratulations_message = "Essaie encore"
@@ -145,6 +160,32 @@ def replay():
     session.pop('current_image', None)
     return redirect(url_for('public.generate_image'))
 
+####animals90
+
+
+@blueprint.route('/generate_image_hard/', methods=['GET', 'POST'])
+def generate_image_hard():
+    form = GenerateImageForm()
+    image_path = session.get('current_image_hard', get_random_image_hard_path())
+    congratulations_message = None
+
+    if form.validate_on_submit():
+        prompt_value = form.prompt.data.lower()
+        anws = classifie_animals90(image_path)
+        if prompt_value == anws[0] or prompt_value == anws[1]:
+            congratulations_message = "Félicitations, vous avez gagné!"
+        else:
+            congratulations_message = "Essaie encore"
+    session['current_image_hard'] = image_path
+
+    return render_template('public/image_page_hard.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+
+@blueprint.route('/replay_hard/', methods=['GET'])
+def replay_hard():
+    session.pop('current_image_hard', None)
+    return redirect(url_for('public.generate_image_hard'))
+
+###number
 @blueprint.route('/generate_number/', methods=['GET', 'POST'])
 def generate_number():
     form = GenerateImageForm()
@@ -180,6 +221,16 @@ def get_random_image_path():
     else:
         return None
 
+def get_random_image_hard_path():
+    images_folder = os.path.join(current_app.root_path, 'static', 'images_animals90')
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    if image_files:
+        random_image = random.choice(image_files)
+        return f'/images_animals90/{random_image}'
+    else:
+        return None
+    
 
 def get_random_number_path():
     images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
@@ -193,13 +244,53 @@ def get_random_number_path():
         return images_list
     else:
         return None
-########################
-
-
-
-dict = {0: "chien", 1: "cheval", 
-            2 : "elephant", 3: "papillon", 4: "poule", 
-            5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
-            9: "écureuil"}
-
     
+
+
+########################music gen
+# @blueprint.route('/generate_music/', methods=['GET', 'POST'])
+# def generate_music():
+#     max_midi_T_x = 1000
+#     DIR = './'
+#     import urllib.request
+#     midi_file_l = ['cs1-2all.mid', 'cs5-1pre.mid', 'cs4-1pre.mid', 'cs3-5bou.mid', 'cs1-4sar.mid', 'cs2-5men.mid', 'cs3-3cou.mid', 'cs2-3cou.mid', 'cs1-6gig.mid', 'cs6-4sar.mid', 'cs4-5bou.mid', 'cs4-3cou.mid', 'cs5-3cou.mid', 'cs6-5gav.mid', 'cs6-6gig.mid', 'cs6-2all.mid', 'cs2-1pre.mid', 'cs3-1pre.mid', 'cs3-6gig.mid', 'cs2-6gig.mid', 'cs2-4sar.mid', 'cs3-4sar.mid', 'cs1-5men.mid', 'cs1-3cou.mid', 'cs6-1pre.mid', 'cs2-2all.mid', 'cs3-2all.mid', 'cs1-1pre.mid', 'cs5-2all.mid', 'cs4-2all.mid', 'cs5-5gav.mid', 'cs4-6gig.mid', 'cs5-6gig.mid', 'cs5-4sar.mid', 'cs4-4sar.mid', 'cs6-3cou.mid']
+#     for midi_file in midi_file_l:
+#     #if os.path.isfile(DIR + midi_file) is None:
+#         urllib.request.urlretrieve ("http://www.jsbach.net/midi/" + midi_file, DIR + midi_file)
+
+#     midi_file_l = glob.glob(DIR + 'cs*.mid')
+
+#     X_list = [] 
+#     X_list = F_convert_midi_2_list(midi_file_l, max_midi_T_x)
+#     model_chemin=os.path.join('animalguessinggame', 'models', 'bach_modele.h5')
+#     model = load_model(model_chemin)
+
+#     sum_v = np.zeros(n_x)
+#     for X_ohe in X_list: 
+#         sum_v += np.sum(X_list[0], axis=0)
+#         prior_v = sum_v/np.sum(sum_v)
+
+#     note_l, prediction_l = F_sample_new_sequence(model, prior_v)
+
+#     new_midi_data = pretty_midi.PrettyMIDI()
+#     cello_program = pretty_midi.instrument_name_to_program('Acoustic Grand Piano')
+#     cello = pretty_midi.Instrument(program=cello_program)
+#     time = 0
+#     step = 0.3
+#     for note_number in note_l:
+#         myNote = pretty_midi.Note(velocity=100, pitch=note_number, start=time, end=time+step)
+#         cello.notes.append(myNote)
+#         time += step
+#     new_midi_data.instruments.append(cello)
+    
+
+#     # Assume that new_midi_data.synthesize(fs=44100) returns a NumPy array
+#     audio_data_np = new_midi_data.synthesize(fs=44100)
+
+#     # Normalize the audio data to the range [-32768, 32767] for int16 format
+#     normalized_audio_data = (audio_data_np * 32767).astype(np.int16)
+#     import base64
+#     audio_base64 = base64.b64encode(normalized_audio_data).decode('utf-8')
+
+#     # Return the base64-encoded audio data as JSON
+#     return jsonify({'audio_data': audio_base64})
