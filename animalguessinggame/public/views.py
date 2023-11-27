@@ -54,7 +54,7 @@ from wtforms import StringField, PasswordField, SubmitField
 
 import numpy as np
 from scipy.io.wavfile import write
-from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist,VAE 
+from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE 
 #from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 

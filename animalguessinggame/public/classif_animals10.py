@@ -128,7 +128,7 @@ def classifie_animals90(image_path):
     return [animaux[predicted_class], animaux_eng[predicted_class]]
 ######
 def classifie_mnist(image__list_path):
-    model=Classifier_mnist()
+    model = Classifier_mnist()
     model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_minst.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model.eval()
