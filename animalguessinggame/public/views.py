@@ -43,18 +43,21 @@ import os
 from flask import current_app
 #from pydub import AudioSegment
 import numpy as np
-
+from flask import redirect, url_for, render_template
+from flask import jsonify
+from flask import render_template, request
+import time
+from flask import redirect
+from flask import session
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
 
 import numpy as np
 from scipy.io.wavfile import write
-from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90
+from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist,VAE 
 #from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
-# Assurez-vous d'importer StringField et SubmitField
-# forms.py
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
 
 class GenerateImageForm(FlaskForm):
     username = StringField('Username')  # Vous pouvez personnaliser le libellé si nécessaire
@@ -120,24 +123,8 @@ def about():
     return render_template("public/about.html", form=form)
 
 
-from flask import redirect, url_for, render_template
 
-
-from flask import jsonify
-
-
-from flask import render_template, request
-
-
-import time
-
-
-from flask import redirect
-
-
-from flask import session
-
-
+##animals10
 @blueprint.route('/generate_image/', methods=['GET', 'POST'])
 def generate_image():
     form = GenerateImageForm()
@@ -235,9 +222,9 @@ def get_random_image_hard_path():
 def get_random_number_path():
     images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
-    images_list=[]
+    images_list = []
     if image_files:
-        number_images=random.randint(1,4)
+        number_images = random.randint(1,4)
         for k in range(number_images):
             random_image = random.choice(image_files)
             images_list.append(f'/images_number/{random_image}')
@@ -245,6 +232,41 @@ def get_random_number_path():
     else:
         return None
     
+
+def get_random_gen_number_path():
+    images_list = []
+    number_images = random.randint(1,4)
+    for k in range(number_images):
+        random_image_path = gen_number_path(k)
+        images_list.append(random_image_path)
+    return images_list
+
+def gen_number_path(k):
+    model_chemin = os.path.join('animalguessinggame', 'models', 'VAE_MINST.pt')
+    model = torch.load(model_chemin, map_location='cpu')
+    model_chemin_classif = os.path.join('animalguessinggame', 'models', 'classifierVF_MINST.pt')
+    classif = torch.load(model_chemin_classif, map_location='cpu')
+    z3 = torch.randn(20, 20)
+    with torch.no_grad():
+        generated_images = model.decode(z3)
+    gen = [x.view(1, 28, 28).unsqueeze(0) for x in generated_images]
+    with torch.no_grad():
+        x = [classif(x) for x in gen]
+    h = [float(torch.max(prob)) for prob in x]
+    best_gen_index = h.index(max(h))
+    image_gen_vf = generated_images[best_gen_index]
+    output_directory = os.path.join(current_app.root_path, 'static', 'image_number')
+    #os.makedirs(output_directory, exist_ok=True)
+    image_tensor = image_gen_vf.view(28, 28).cpu().numpy()
+    image_pil = Image.fromarray((image_tensor * 255).astype('uint8'))
+    output_filename = os.path.join(output_directory, 'output_image'+f'{k}'+'.png')
+    image_pil.save(output_filename)
+    return output_filename
+
+
+
+
+
 
 
 ########################music gen

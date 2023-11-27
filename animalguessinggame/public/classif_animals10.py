@@ -10,8 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os 
 from flask import current_app
-
-
 class ResNetClassifier(nn.Module):
     def __init__(self, num_classes=10):
         super(ResNetClassifier, self).__init__()
@@ -23,6 +21,36 @@ class ResNetClassifier(nn.Module):
     def forward(self, x):
         x=self.resnet(x)
         return x
+class VAE(nn.Module):
+    def __init__(self):
+        super(VAE, self).__init__()
+        self.fc1 = nn.Linear(784, 400)
+        self.fc21 = nn.Linear(400, 20) # mean
+        self.fc22 = nn.Linear(400, 20) # variance
+        self.fc3 = nn.Linear(20, 400)
+        self.fc4 = nn.Linear(400, 784)
+
+    def encode(self, x):
+        h1 = F.relu(self.fc1(x))
+        return self.fc21(h1), self.fc22(h1) # returns mean and variance
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return eps.mul(std).add(mu) # returns sampled latent variable z
+
+    def decode(self, z):
+        h3 = F.relu(self.fc3(z))
+        return torch.sigmoid(self.fc4(h3)) # returns reconstructed image
+
+    def forward(self, x):
+        mu, logvar = self.encode(x.view(-1, 784))
+        z = self.reparameterize(mu, logvar)
+        return self.decode(z), mu, logvar
+    
+
+
+
 
 class Classifier_mnist(nn.Module):
     def __init__(self, num_classes=10):
@@ -40,8 +68,6 @@ class Classifier_mnist(nn.Module):
             nn.ReLU(),
             nn.Linear(100,10),
         )
-
-
     def forward(self, x):
         x=self.mod(x)
         x=x.view(x.size(0),-1)
@@ -59,7 +85,18 @@ dict_eng = {0: "dog", 1: "horse",
 
 
 def classifie_animals10(image_path):
-    model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals10.pt')
+    class ResNetClassifier(nn.Module):
+        def __init__(self, num_classes=10):
+            super(ResNetClassifier, self).__init__()
+            self.resnet = models.resnet18(weights='DEFAULT')
+            in_features = self.resnet.fc.in_features
+            self.resnet.fc = nn.Linear(in_features, num_classes)
+
+
+        def forward(self, x):
+            x=self.resnet(x)
+            return x
+    model_chemin = os.path.join(current_app.root_path,'models', 'classifierVF_animals10.pt')
     model = torch.load(model_chemin, map_location='cpu')
     image=Image.open(image_path)
     T = transforms.Compose([
