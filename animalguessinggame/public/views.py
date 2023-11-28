@@ -55,6 +55,7 @@ from wtforms import StringField, PasswordField, SubmitField
 import numpy as np
 from scipy.io.wavfile import write
 from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
+from .levenstein import distance_levenstein
 #from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -139,6 +140,8 @@ def generate_image():
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
+        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+            congratulations_message = "Tu chauffes !"
         else:
             congratulations_message = "Essaie encore !"
     session['current_image'] = image_path
@@ -164,6 +167,8 @@ def generate_image_hard():
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné!"
+        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+            congratulations_message = "Tu chauffes !"           
         else:
             congratulations_message = "Essaie encore"
     session['current_image_hard'] = image_path
@@ -188,6 +193,8 @@ def generate_number():
         anws=classifie_mnist(images_list_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné!"
+        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+            congratulations_message = "Tu chauffes !"
         else:
             congratulations_message = "Essaie encore"
     session['current_images'] = images_list_path
