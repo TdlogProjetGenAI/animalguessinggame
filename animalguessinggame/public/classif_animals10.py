@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os 
 from flask import current_app
+
 class ResNetClassifier(nn.Module):
     def __init__(self, num_classes=10):
         super(ResNetClassifier, self).__init__()
@@ -85,19 +86,10 @@ dict_eng = {0: "dog", 1: "horse",
 
 
 def classifie_animals10(image_path):
-    class ResNetClassifier(nn.Module):
-        def __init__(self, num_classes=10):
-            super(ResNetClassifier, self).__init__()
-            self.resnet = models.resnet18(weights='DEFAULT')
-            in_features = self.resnet.fc.in_features
-            self.resnet.fc = nn.Linear(in_features, num_classes)
-
-
-        def forward(self, x):
-            x=self.resnet(x)
-            return x
     model_chemin = os.path.join(current_app.root_path,'models', 'classifierVF_animals10.pt')
     model = torch.load(model_chemin, map_location='cpu')
+    model.eval()
+    image_path='animalguessinggame/static'+image_path
     image=Image.open(image_path)
     T = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -112,8 +104,10 @@ def classifie_animals10(image_path):
     return [dict[predicted_class], dict_eng[predicted_class]]
 
 def classifie_animals90(image_path):
-    model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_animals90.pt')
+    model_chemin = os.path.join(current_app.root_path,'models', 'classifier_animals90.pt')
     model = torch.load(model_chemin, map_location='cpu')
+    model.eval()
+    image_path='animalguessinggame/static'+image_path
     image=Image.open(image_path)
     T = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -134,6 +128,7 @@ def classifie_mnist(image__list_path):
     model.eval()
     ans=[]
     for x  in image__list_path:
+        x='animalguessinggame/static'+ x
         image=Image.open(x)
         T1 = transforms.Compose([
         transforms.Resize((28, 28)),

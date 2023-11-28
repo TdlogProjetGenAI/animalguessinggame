@@ -54,11 +54,14 @@ from wtforms import StringField, PasswordField, SubmitField
 
 import numpy as np
 from scipy.io.wavfile import write
-from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE 
+from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
 #from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
-
+import __main__
+setattr(__main__, "ResNetClassifier", ResNetClassifier)
+setattr(__main__, "Classifier_mnist", Classifier_mnist)
+setattr(__main__, "VAE", VAE)
 class GenerateImageForm(FlaskForm):
     username = StringField('Username')  # Vous pouvez personnaliser le libellé si nécessaire
     password = PasswordField('Password')  # Vous pouvez personnaliser le libellé si nécessaire
@@ -135,9 +138,9 @@ def generate_image():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
-            congratulations_message = "Félicitations, vous avez gagné!"
+            congratulations_message = "Félicitations, vous avez gagné !"
         else:
-            congratulations_message = "Essaie encore"
+            congratulations_message = "Essaie encore !"
     session['current_image'] = image_path
 
     return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
@@ -182,7 +185,8 @@ def generate_number():
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
-        if prompt_value == "chat":
+        anws=classifie_mnist(images_list_path)
+        if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné!"
         else:
             congratulations_message = "Essaie encore"
