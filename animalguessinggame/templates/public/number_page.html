@@ -13,18 +13,19 @@
       height: 128px;
       margin: 0px; 
   }
+
+
 </style>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             {% if congratulations_message %}
-                    <div id="congratulations-message" class="alert alert-success" role="alert">
-                        {{ congratulations_message }}
-                    </div>
-              {% endif %}
+                <div id="congratulations-message" class="alert alert-success" role="alert">
+                    {{ congratulations_message }}
+                </div>
+            {% endif %}
             <div id="result-container" class="image-container">
-                
                 {% for image_path in images_list_path %}
                     <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image" alt="Generated Image">
                 {% endfor %}
@@ -35,7 +36,7 @@
         <div class="col-md-8 text-center">
             {% if form.prompt %}
                 <form id="generateForm" action="{{ url_for('public.generate_number') }}" method="post">
-                    {{ form.hidden_tag() }} {# Ceci inclut le champ CSRF #}
+                    {{ form.hidden_tag() }}
                     <div class="form-group">
                         <label for="prompt">Prompt :</label>
                         {{ form.prompt(class="form-control", placeholder="Saisissez votre prompt ici", required=True) }}
@@ -46,6 +47,11 @@
             <a href="{{ url_for('public.replay_number') }}" class="btn btn-secondary mt-3">Rejouer</a>
         </div>
     </div>
+    <form id="toggleForm" action="{{ url_for('public.toggle_method') }}" method="post">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-primary" id="toggleButton">Generation On/Off</button>
+    </form>
 </div>
+
 
 {% endblock %}

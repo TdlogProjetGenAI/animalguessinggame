@@ -76,7 +76,7 @@ class Classifier_mnist(nn.Module):
     
 
 dict = {0: "chien", 1: "cheval", 
-            2 : "elephant", 3: "papillon", 4: "poule", 
+            2 : "éléphant", 3: "papillon", 4: "poule", 
             5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 
             9: "écureuil"}
 dict_eng = {0: "dog", 1: "horse", 

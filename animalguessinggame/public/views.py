@@ -60,9 +60,22 @@ from .levenstein import distance_levenstein
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
 import __main__
+class compt():
+    def __init__(self):
+        self.k=0
+    def incr(self):
+        self.k+=1
+    def value(self):
+        return self.k
+    def value_to_sero(self):
+        self.k=0
+        
+
 setattr(__main__, "ResNetClassifier", ResNetClassifier)
 setattr(__main__, "Classifier_mnist", Classifier_mnist)
 setattr(__main__, "VAE", VAE)
+setattr(__main__, "compteur", compt)
+
 class GenerateImageForm(FlaskForm):
     username = StringField('Username')  # Vous pouvez personnaliser le libellé si nécessaire
     password = PasswordField('Password')  # Vous pouvez personnaliser le libellé si nécessaire
@@ -153,6 +166,16 @@ def replay():
     session.pop('current_image', None)
     return redirect(url_for('public.generate_image'))
 
+
+# Votre route Flask pour afficher la liste des animaux
+@blueprint.route('/liste_animals10', methods=['GET'])
+def liste_animals10():
+    # Votre liste d'animaux
+    animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
+
+    # Rendre le modèle avec la liste d'animaux
+    return render_template('public/liste_animals10.html', animals10_dict=animals10_dict)
+
 ####animals90
 
 
@@ -180,33 +203,74 @@ def replay_hard():
     session.pop('current_image_hard', None)
     return redirect(url_for('public.generate_image_hard'))
 
+
+@blueprint.route('/liste_animals90', methods=['GET'])
+def liste_animals90():
+    # Votre liste d'animaux
+    animals90 = [
+    'antilope', 'blaireau', 'chauve-souris', 'ours', 'abeille', 'scarabée', 'bison', 'sanglier', 'papillon', 'chat',
+    'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
+    'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
+    'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
+    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 'papillon de nuit',
+    'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 'panda', 'perroquet', 'pélécaniformes',
+    'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 'rat', 'renne', 'rhinocéros', 'bécasse',
+    'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 'calmar', 'écureuil', 'étoile de mer', 'cygne',
+    'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
+    ]
+    animals90_dict = {i: animal for i, animal in enumerate(animals90)}
+
+   
+    return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
+
+
 ###number
 @blueprint.route('/generate_number/', methods=['GET', 'POST'])
 def generate_number():
     form = GenerateImageForm()
-    images_list_path = session.get('current_images', get_random_number_path())
-    congratulations_message = None
+    
+    # Retrieve the function name as a string from the session
+    current_method_name = session.get('current_method', 'get_random_gen_number_path')
+    
+    # Get the actual function based on the name
+    current_method = globals()[current_method_name]
+    
+    # Call the function to get the images_list_path
+    images_list_path = session.get('current_images', current_method())
 
+    congratulations_message = None
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
-        anws=classifie_mnist(images_list_path)
+        anws = classifie_mnist(images_list_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné!"
         elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
             congratulations_message = "Tu chauffes !"
         else:
-            congratulations_message = "Essaie encore"
+            congratulations_message = anws[0]
+
     session['current_images'] = images_list_path
 
     return render_template('public/number_page.html', images_list_path=images_list_path, congratulations_message=congratulations_message, form=form)
 
-
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
-  
     session.pop('current_images', None)
     return redirect(url_for('public.generate_number'))
+
+@blueprint.route('/toggle_method/', methods=['POST'])
+def toggle_method():
+    current_method_name = session.get('current_method', 'get_random_gen_number_path')
+    
+    # Change the method name based on the current state
+    if current_method_name == 'get_random_gen_number_path':
+        session['current_method'] = 'get_random_number_path'
+    else:
+        session['current_method'] = 'get_random_gen_number_path'
+
+    # Redirect back to the previous page or the main page
+    return redirect(request.referrer or url_for('public.generate_number'))
 
 
 def get_random_image_path():
@@ -248,11 +312,12 @@ def get_random_gen_number_path():
     images_list = []
     number_images = random.randint(1,4)
     for k in range(number_images):
-        random_image_path = gen_number_path(k)
+        random_image_path = gen_number_path()
         images_list.append(random_image_path)
     return images_list
-
-def gen_number_path(k):
+k=compt()
+def gen_number_path():
+    
     model_chemin = os.path.join('animalguessinggame', 'models', 'VAE_MINST.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model_chemin_classif = os.path.join('animalguessinggame', 'models', 'classifierVF_MINST.pt')
@@ -266,12 +331,17 @@ def gen_number_path(k):
     h = [float(torch.max(prob)) for prob in x]
     best_gen_index = h.index(max(h))
     image_gen_vf = generated_images[best_gen_index]
-    output_directory = os.path.join(current_app.root_path, 'static', 'image_number')
+    output_directory = os.path.join(current_app.root_path, 'static', 'images_number')
     #os.makedirs(output_directory, exist_ok=True)
     image_tensor = image_gen_vf.view(28, 28).cpu().numpy()
     image_pil = Image.fromarray((image_tensor * 255).astype('uint8'))
-    output_filename = os.path.join(output_directory, 'output_image'+f'{k}'+'.png')
+    k.incr()
+    if k.value()>=10:
+        k.value_to_sero()
+    output_filename = os.path.join(output_directory, 'output_image'+f'{k.value()}'+'.png')
     image_pil.save(output_filename)
+    
+    output_filename = f'/images_number/output_image{k.value()}.png'
     return output_filename
 
 
