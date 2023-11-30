@@ -250,7 +250,7 @@ def generate_number():
         elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
             congratulations_message = "Tu chauffes !"
         else:
-            congratulations_message = anws[0]
+            congratulations_message = "Essaie encore"
 
     session['current_images'] = images_list_path
 
