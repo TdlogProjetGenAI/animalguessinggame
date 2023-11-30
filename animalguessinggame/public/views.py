@@ -176,6 +176,8 @@ def liste_animals10():
     # Rendre le modèle avec la liste d'animaux
     return render_template('public/liste_animals10.html', animals10_dict=animals10_dict)
 
+
+
 ####animals90
 
 
