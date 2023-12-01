@@ -31,8 +31,6 @@ from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, random_split
-from torchvision import datasets, transforms, models
 import torch.optim as optim
 from PIL import Image
 import torch
@@ -60,15 +58,19 @@ from .levenstein import distance_levenstein
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
 import __main__
+
 class compt():
     def __init__(self):
-        self.k=0
+        self.k = 0
+
     def incr(self):
-        self.k+=1
+        self.k += 1
+
     def value(self):
         return self.k
+    
     def value_to_sero(self):
-        self.k=0
+        self.k = 0
         
 
 setattr(__main__, "ResNetClassifier", ResNetClassifier)
@@ -77,8 +79,8 @@ setattr(__main__, "VAE", VAE)
 setattr(__main__, "compteur", compt)
 
 class GenerateImageForm(FlaskForm):
-    username = StringField('Username')  # Vous pouvez personnaliser le libellé si nécessaire
-    password = PasswordField('Password')  # Vous pouvez personnaliser le libellé si nécessaire
+    username = StringField('Username') 
+    password = PasswordField('Password')  
     prompt = StringField('Prompt')
     submit = SubmitField('Soumettre')
 
@@ -170,10 +172,7 @@ def replay():
 # Votre route Flask pour afficher la liste des animaux
 @blueprint.route('/liste_animals10', methods=['GET'])
 def liste_animals10():
-    # Votre liste d'animaux
     animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
-
-    # Rendre le modèle avec la liste d'animaux
     return render_template('public/liste_animals10.html', animals10_dict=animals10_dict)
 
 
@@ -208,7 +207,6 @@ def replay_hard():
 
 @blueprint.route('/liste_animals90', methods=['GET'])
 def liste_animals90():
-    # Votre liste d'animaux
     animals90 = [
     'antilope', 'blaireau', 'chauve-souris', 'ours', 'abeille', 'scarabée', 'bison', 'sanglier', 'papillon', 'chat',
     'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
@@ -221,8 +219,6 @@ def liste_animals90():
     'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
     ]
     animals90_dict = {i: animal for i, animal in enumerate(animals90)}
-
-   
     return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
 
 
@@ -230,18 +226,10 @@ def liste_animals90():
 @blueprint.route('/generate_number/', methods=['GET', 'POST'])
 def generate_number():
     form = GenerateImageForm()
-    
-    # Retrieve the function name as a string from the session
     current_method_name = session.get('current_method', 'get_random_gen_number_path')
-    
-    # Get the actual function based on the name
     current_method = globals()[current_method_name]
-    
-    # Call the function to get the images_list_path
     images_list_path = session.get('current_images', current_method())
-
     congratulations_message = None
-
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_mnist(images_list_path)
@@ -251,9 +239,7 @@ def generate_number():
             congratulations_message = "Tu chauffes !"
         else:
             congratulations_message = "Essaie encore"
-
     session['current_images'] = images_list_path
-
     return render_template('public/number_page.html', images_list_path=images_list_path, congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_number/', methods=['GET'])
@@ -317,7 +303,7 @@ def get_random_gen_number_path():
         random_image_path = gen_number_path()
         images_list.append(random_image_path)
     return images_list
-k=compt()
+k = compt()
 def gen_number_path():
     
     model_chemin = os.path.join('animalguessinggame', 'models', 'VAE_MINST.pt')
@@ -338,7 +324,7 @@ def gen_number_path():
     image_tensor = image_gen_vf.view(28, 28).cpu().numpy()
     image_pil = Image.fromarray((image_tensor * 255).astype('uint8'))
     k.incr()
-    if k.value()>=10:
+    if k.value() >= 10:
         k.value_to_sero()
     output_filename = os.path.join(output_directory, 'output_image'+f'{k.value()}'+'.png')
     image_pil.save(output_filename)

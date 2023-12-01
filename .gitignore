@@ -60,3 +60,6 @@ env/
 
 
 #images 
+/animalguessinggame/static/images_animals10/
+/animalguessinggame/static/images_animals90/
+/animalguessinggame/static/images_number/

@@ -1,4 +1,4 @@
-def distance_levenstein(s1 ,s2):
+def distance_levenstein(s1, s2):
     m = len(s1)
     n = len(s2)
     mat_dist = [[0]*(n+1) for k in range(m + 1)]
