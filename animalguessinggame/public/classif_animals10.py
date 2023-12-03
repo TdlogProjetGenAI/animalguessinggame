@@ -1,10 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision import  transforms, models
+from torchvision import transforms, models
 from PIL import Image
-import numpy as np
-import matplotlib.pyplot as plt
 import os 
 from flask import current_app
 
@@ -22,23 +20,23 @@ class VAE(nn.Module):
     def __init__(self):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(784, 400)
-        self.fc21 = nn.Linear(400, 20) # mean
-        self.fc22 = nn.Linear(400, 20) # variance
+        self.fc21 = nn.Linear(400, 20)  
+        self.fc22 = nn.Linear(400, 20)  
         self.fc3 = nn.Linear(20, 400)
         self.fc4 = nn.Linear(400, 784)
 
     def encode(self, x):
         h1 = F.relu(self.fc1(x))
-        return self.fc21(h1), self.fc22(h1) # returns mean and variance
+        return self.fc21(h1), self.fc22(h1)  
 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
-        return eps.mul(std).add(mu) # returns sampled latent variable z
+        return eps.mul(std).add(mu) 
 
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
-        return torch.sigmoid(self.fc4(h3)) # returns reconstructed image
+        return torch.sigmoid(self.fc4(h3))  
 
     def forward(self, x):
         mu, logvar = self.encode(x.view(-1, 784))
@@ -85,11 +83,10 @@ def classifie_animals10(image_path):
     model.eval()
     image_path = 'animalguessinggame/static'+image_path
     image = Image.open(image_path)
-    T = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    T = transforms.Compose([transforms.Resize((224, 224)),
+                            transforms.ToTensor(),
+                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                            ])
     image = T(image)
     image = image.unsqueeze(0)
     with torch.no_grad():
@@ -103,11 +100,10 @@ def classifie_animals90(image_path):
     model.eval()
     image_path = 'animalguessinggame/static'+image_path
     image = Image.open(image_path)
-    T = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    T = transforms.Compose([transforms.Resize((224, 224)),
+                            transforms.ToTensor(),
+                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                            ])
     image = T(image)
     image = image.unsqueeze(0)
     with torch.no_grad():
@@ -124,10 +120,7 @@ def classifie_mnist(image__list_path):
     for x in image__list_path:
         x = 'animalguessinggame/static' + x
         image = Image.open(x)
-        T1 = transforms.Compose([
-        transforms.Resize((28, 28)),
-        transforms.ToTensor()
-        ])
+        T1 = transforms.Compose([transforms.Resize((28, 28)), transforms.ToTensor()])
         image = T1(image)
         image = image.unsqueeze(0)
         with torch.no_grad():
@@ -201,16 +194,15 @@ dix_vingt = {0: 'dix',
              6: 'seize',
              7: 'dix sept',
              8: 'dix huit',
-             9: 'dix neuf'
-            }
-
+             9: 'dix neuf'}
+            
 def concat(L):
     n = len(L)
     string = []
     if n == 4:
         if L == [0, 0, 0, 0]:
             return 'zéro'
-        #gestion des milliers
+        ##gestion des millierss
         if L[0] != 0:
             string.append(chiffre[L[0]]+' mille')
         ##gestion des centaines
@@ -408,4 +400,5 @@ def concat_eng(L):
 
 digits = {0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine'}
 tens = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty', 6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'}
-teens = {0: 'ten', 1: 'eleven', 2: 'twelve', 3: 'thirteen', 4: 'fourteen', 5: 'fifteen', 6: 'sixteen', 7: 'seventeen', 8: 'eighteen', 9: 'nineteen'}
+teens = {0: 'ten', 1: 'eleven', 2: 'twelve', 3: 'thirteen', 4: 'fourteen', 5: 'fifteen', 6: 'sixteen', 7: 'seventeen', 
+         8: 'eighteen', 9: 'nineteen'}
