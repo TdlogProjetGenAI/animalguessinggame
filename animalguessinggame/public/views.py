@@ -333,6 +333,87 @@ def gen_number_path():
     return output_filename
 
 
+# Configurez le répertoire de téléchargement
+UPLOAD_FOLDER = 'animalguessinggame/static/images_animals10'
+UPLOAD_FOLDER_HARD = 'animalguessinggame/static/images_animals90'
+UPLOAD_FOLDER_NUMBER = 'animalguessinggame/static/images_number'
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Liste des extensions de fichiers autorisées
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+from werkzeug.utils import secure_filename
+
+
+
+
+@blueprint.route('/upload_images', methods=['POST'])
+def upload_images():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_image'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_image'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_image'))
+
+@blueprint.route('/upload_images_hard', methods=['POST'])
+def upload_images_hard():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_image_hard'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_image_hard'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER_HARD, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_image_hard'))
+
+
+
+@blueprint.route('/upload_images_number', methods=['POST'])
+def upload_images_number():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_number'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_number'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER_NUMBER, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_number'))
 
 
 
