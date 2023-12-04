@@ -3,6 +3,7 @@
 import logging
 import sys
 
+
 from flask import Flask, render_template
 
 from animalguessinggame import commands, public, user
