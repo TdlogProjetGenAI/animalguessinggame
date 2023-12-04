@@ -1,6 +1,7 @@
 # Everything the developer needs in addition to the production requirements
 -r prod.txt
 
+
 # Testing
 factory-boy==3.3.0
 pytest==7.4.3

@@ -16,7 +16,7 @@ import random
 from scipy.io import wavfile
 import IPython
 
-from keras.models import load_model
+
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
