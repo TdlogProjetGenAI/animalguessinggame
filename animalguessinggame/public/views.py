@@ -144,32 +144,45 @@ def about():
 
 
 ##animals10
+# Ajoutez cette importation à votre fichier Python
+from flask import session
+
+# ...
+
 @blueprint.route('/generate_image/', methods=['GET', 'POST'])
 def generate_image():
     form = GenerateImageForm()
     image_path = session.get('current_image', get_random_image_path())
     congratulations_message = None
+    attempts = session.get('attempts', 3)
 
-    if form.validate_on_submit():
+    if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
-        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
-            congratulations_message = "Tu chauffes !"
+        
         else:
-            congratulations_message = "Essaie encore !"
+            attempts -= 1
+            if attempts == 0:
+                congratulations_message = f"Dommage. La réponse était {anws[0]}."
+            elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+                congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+            else:
+                congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+    session['attempts'] = attempts
     session['current_image'] = image_path
 
     return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
+
 @blueprint.route('/replay/', methods=['GET'])
 def replay():
+    session['attempts'] = 3
     session.pop('current_image', None)
     return redirect(url_for('public.generate_image'))
 
 
-# Votre route Flask pour afficher la liste des animaux
 @blueprint.route('/liste_animals10', methods=['GET'])
 def liste_animals10():
     animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
@@ -179,28 +192,36 @@ def liste_animals10():
 
 ####animals90
 
-
-@blueprint.route('/generate_image_hard/', methods=['GET', 'POST'])
+@blueprint.route('/generate_image_hard', methods=['GET','POST'])
 def generate_image_hard():
     form = GenerateImageForm()
     image_path = session.get('current_image_hard', get_random_image_hard_path())
     congratulations_message = None
+    attempts = session.get('attempts_hard', 3)
 
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
-            congratulations_message = "Félicitations, vous avez gagné!"
-        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
-            congratulations_message = "Tu chauffes !"           
+            congratulations_message = "Félicitations, vous avez gagné !"
+        
         else:
-            congratulations_message = "Essaie encore"
+            attempts -= 1
+            if attempts == 0:
+                congratulations_message = f"Dommage. La réponse était {anws[0]}."
+            elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+                congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+            else:
+                congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+    session['attempts_hard'] = attempts
     session['current_image_hard'] = image_path
 
     return render_template('public/image_page_hard.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
+
 @blueprint.route('/replay_hard/', methods=['GET'])
 def replay_hard():
+    session['attempts_hard'] = 3
     session.pop('current_image_hard', None)
     return redirect(url_for('public.generate_image_hard'))
 
@@ -208,15 +229,15 @@ def replay_hard():
 @blueprint.route('/liste_animals90', methods=['GET'])
 def liste_animals90():
     animals90 = [
-    'antilope', 'blaireau', 'chauve-souris', 'ours', 'abeille', 'scarabée', 'bison', 'sanglier', 'papillon', 'chat',
-    'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
-    'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
-    'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
-    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 'papillon de nuit',
-    'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 'panda', 'perroquet', 'pélécaniformes',
-    'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 'rat', 'renne', 'rhinocéros', 'bécasse',
-    'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 'calmar', 'écureuil', 'étoile de mer', 'cygne',
-    'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
+    'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'bœuf', 'calamar', 'calao', 'canard',
+    'cafard', 'cerf', 'chat', 'chauve-souris', 'cheval', 'chenille', 'chimpanzé', 'chien', 'cochon', 'colibri', 'coq',
+    'corbeau', 'coyote', 'crapaud', 'crabe', 'cygne', 'dauphin', 'dinosaure', 'dindon', 'éléphant', 'écureuil',
+    'étoile de mer', 'flamant rose', 'fourmi', 'gorille', 'hamster', 'hérisson', 'hippocampe', 'hibou', 'homard', 'hyène',
+    'kangourou', 'koala', 'léopard', 'lézard', 'lion', 'loup', 'loutre', 'méduse', 'moineau', 'moustique', 'mouche',
+    'mouton', 'octopus', 'okapi', 'oie', 'opossum', 'orque', 'ours', 'panda', 'papillon', 'papillon de nuit', 'paon',
+    'perroquet', 'phoque', 'pigeon', 'pingouin', 'pieuvre', 'poisson rouge', 'porc-épic', 'rat', 'raton laveur', 'renard',
+    'renne', 'requin', 'rhinocéros', 'sanglier', 'sauterelle', 'scarabée', 'serpent', 'souris', 'tigre', 'tortue', 'vache',
+    'wombat', 'zèbre'
     ]
     animals90_dict = {i: animal for i, animal in enumerate(animals90)}
     return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
@@ -230,20 +251,27 @@ def generate_number():
     current_method = globals()[current_method_name]
     images_list_path = session.get('current_images', current_method())
     congratulations_message = None
+    attempts = session.get('attempts_number', 3)
     if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_mnist(images_list_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
-            congratulations_message = "Félicitations, vous avez gagné!"
-        elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
-            congratulations_message = "Tu chauffes !"
+            congratulations_message = "Félicitations, vous avez gagné !"
         else:
-            congratulations_message = "Essaie encore"
+            attempts -= 1
+            if attempts == 0:
+                congratulations_message = f"Dommage. La réponse était {anws[0]}."
+            elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
+                congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+            else:
+                congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+    session['attempts_number'] = attempts
     session['current_images'] = images_list_path
     return render_template('public/number_page.html', images_list_path=images_list_path, congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
+    session['attempts_number'] = 3
     session.pop('current_images', None)
     return redirect(url_for('public.generate_number'))
 
@@ -333,6 +361,87 @@ def gen_number_path():
     return output_filename
 
 
+# Configurez le répertoire de téléchargement
+UPLOAD_FOLDER = 'animalguessinggame/static/images_animals10'
+UPLOAD_FOLDER_HARD = 'animalguessinggame/static/images_animals90'
+UPLOAD_FOLDER_NUMBER = 'animalguessinggame/static/images_number'
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Liste des extensions de fichiers autorisées
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+from werkzeug.utils import secure_filename
+
+
+
+
+@blueprint.route('/upload_images', methods=['POST'])
+def upload_images():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_image'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_image'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_image'))
+
+@blueprint.route('/upload_images_hard', methods=['POST'])
+def upload_images_hard():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_image_hard'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_image_hard'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER_HARD, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_image_hard'))
+
+
+
+@blueprint.route('/upload_images_number', methods=['POST'])
+def upload_images_number():
+    if 'images' not in request.files:
+        flash('Aucun fichier téléchargé')
+        return redirect(url_for('public.generate_number'))
+
+    files = request.files.getlist('images')
+
+    if not files or all(file.filename == '' for file in files):
+        flash('Aucun fichier sélectionné')
+        return redirect(url_for('public.generate_number'))
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER_NUMBER, filename)
+            file.save(filepath)
+
+    flash('Images téléchargées avec succès')
+    return redirect(url_for('public.generate_number'))
 
 
 
