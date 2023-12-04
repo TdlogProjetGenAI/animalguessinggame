@@ -49,7 +49,7 @@ from flask import redirect
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-
+from flask import Flask
 import numpy as np
 from scipy.io.wavfile import write
 from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
