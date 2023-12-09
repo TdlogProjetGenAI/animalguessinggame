@@ -171,8 +171,12 @@ def generate_image():
                 
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+                play_win_sound = True
+                sound_file=f'sound_animals10/tu_chauffes.mp3'
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+                play_win_sound = True
+                sound_file=f'sound_animals10/essaie_encore.mp3'
     session['attempts'] = attempts
     session['current_image'] = image_path
 
