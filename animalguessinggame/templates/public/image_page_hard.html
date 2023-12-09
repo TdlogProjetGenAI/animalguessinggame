@@ -21,8 +21,8 @@
                 <form id="generateForm" action="{{ url_for('public.generate_image_hard') }}" method="post">
                     {{ form.hidden_tag() }} {# Ceci inclut le champ CSRF #}
                     <div class="form-group">
-                        <label for="prompt">Prompt :</label>
-                        {{ form.prompt(class="form-control", placeholder="Saisissez votre prompt ici", required=True) }}
+                        <label for="prompt">Votre réponse :</label>
+                        {{ form.prompt(class="form-control", placeholder="Saisissez votre réponse ici", required=True) }}
                     </div>
                     <button type="submit" class="btn btn-primary">Soumettre</button>
                 </form>
