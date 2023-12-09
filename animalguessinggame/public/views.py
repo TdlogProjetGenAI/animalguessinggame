@@ -155,17 +155,20 @@ def generate_image():
     image_path = session.get('current_image', get_random_image_path())
     congratulations_message = None
     attempts = session.get('attempts', 3)
-
+    play_win_sound = False
+    sound_file = None
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
-        
+            play_win_sound = True
+            sound_file=f'sound_animals10/{anws[0]}.mp3'
         else:
             attempts -= 1
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
+                
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
             else:
@@ -173,7 +176,7 @@ def generate_image():
     session['attempts'] = attempts
     session['current_image'] = image_path
 
-    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form,play_win_sound = play_win_sound, sound_file = sound_file)
 
 
 @blueprint.route('/replay/', methods=['GET'])
