@@ -49,7 +49,7 @@ from flask import redirect
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-
+from flask import Flask
 import numpy as np
 from scipy.io.wavfile import write
 from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
@@ -69,7 +69,7 @@ class compt():
     def value(self):
         return self.k
     
-    def value_to_sero(self):
+    def value_to_zero(self):
         self.k = 0
         
 
@@ -199,7 +199,7 @@ def generate_image_hard():
     congratulations_message = None
     attempts = session.get('attempts_hard', 3)
 
-    if form.validate_on_submit():
+    if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
@@ -251,10 +251,11 @@ def generate_number():
     current_method = globals()[current_method_name]
     images_list_path = session.get('current_images', current_method())
     congratulations_message = None
+    anws = classifie_mnist(images_list_path)
     attempts = session.get('attempts_number', 3)
-    if form.validate_on_submit():
+    if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
-        anws = classifie_mnist(images_list_path)
+        
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
         else:
@@ -278,14 +279,10 @@ def replay_number():
 @blueprint.route('/toggle_method/', methods=['POST'])
 def toggle_method():
     current_method_name = session.get('current_method', 'get_random_gen_number_path')
-    
-    # Change the method name based on the current state
     if current_method_name == 'get_random_gen_number_path':
         session['current_method'] = 'get_random_number_path'
     else:
         session['current_method'] = 'get_random_gen_number_path'
-
-    # Redirect back to the previous page or the main page
     return redirect(request.referrer or url_for('public.generate_number'))
 
 
@@ -348,12 +345,11 @@ def gen_number_path():
     best_gen_index = h.index(max(h))
     image_gen_vf = generated_images[best_gen_index]
     output_directory = os.path.join(current_app.root_path, 'static', 'images_number')
-    #os.makedirs(output_directory, exist_ok=True)
     image_tensor = image_gen_vf.view(28, 28).cpu().numpy()
     image_pil = Image.fromarray((image_tensor * 255).astype('uint8'))
     k.incr()
-    if k.value() >= 10:
-        k.value_to_sero()
+    if k.value() >= 20:
+        k.value_to_zero()
     output_filename = os.path.join(output_directory, 'output_image'+f'{k.value()}'+'.png')
     image_pil.save(output_filename)
     
@@ -361,12 +357,9 @@ def gen_number_path():
     return output_filename
 
 
-# Configurez le répertoire de téléchargement
 UPLOAD_FOLDER = 'animalguessinggame/static/images_animals10'
 UPLOAD_FOLDER_HARD = 'animalguessinggame/static/images_animals90'
 UPLOAD_FOLDER_NUMBER = 'animalguessinggame/static/images_number'
-#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# Liste des extensions de fichiers autorisées
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):

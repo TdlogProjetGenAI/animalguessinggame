@@ -17,4 +17,5 @@ def create_connection(db_file):
 
 if __name__ == '__main__':
     print('debug')
-    create_connection(r"dev.db")
+    
+    create_connection(r"pythonsqlite.db")
