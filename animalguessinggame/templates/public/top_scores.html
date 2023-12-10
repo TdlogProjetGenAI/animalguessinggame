@@ -1,0 +1,17 @@
+<h2>Top 10 Scores</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for score in top_scores %}
+      <tr>
+        <td>{{ score.user.username }}</td>
+        <td>{{ score.score_value }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

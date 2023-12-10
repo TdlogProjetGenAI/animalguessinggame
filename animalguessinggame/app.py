@@ -2,7 +2,7 @@
 """The app module, containing the app factory function."""
 import logging
 import sys
-
+import os
 
 from flask import Flask, render_template
 
@@ -32,6 +32,13 @@ def create_app(config_object="animalguessinggame.settings"):
     register_shellcontext(app)
     register_commands(app)
     configure_logger(app)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Initialisation des instances SQLAlchemy
+    db.init_app(app)
+    
     return app
 
 
@@ -39,7 +46,6 @@ def register_extensions(app):
     """Register Flask extensions."""
     bcrypt.init_app(app)
     cache.init_app(app)
-    db.init_app(app)
     csrf_protect.init_app(app)
     login_manager.init_app(app)
     debug_toolbar.init_app(app)
