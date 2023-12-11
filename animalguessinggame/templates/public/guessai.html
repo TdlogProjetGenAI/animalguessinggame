@@ -1,9 +1,32 @@
 {% extends "layout.html" %}
 {% block content %}
+
+<style>
+    .image-container {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+  
+    .generated-image {
+        width: 128px;
+        height: 128px;
+        margin: 0px; 
+    }
+  
+    .score-table {
+        margin-top: 20px;
+    }
+  </style>
+  
+
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8 text-center">
-                <h1>Guess AI</h1>
+                {% if congratulations_message %}
+                    <div id="congratulations-message" class="alert alert-success" role="alert">
+                        {{ congratulations_message }}
+                    </div>
+                {% endif %}
 
               
                 <div class="image-container">
@@ -12,13 +35,11 @@
 
                 <form id="generateForm" action="{{ url_for('public.guessai') }}" method="post">
                     {{ form.hidden_tag() }}
-                    
-                    <input type="hidden" name="ia" id="ia" value="{{ form.ia.data }}">
-                    
-                    <button type="button" onclick="setIsIA(true)" class="btn btn-primary">IA</button>
-                    <button type="button" onclick="setIsIA(false)" class="btn btn-primary">Non IA</button>
-                    <button type="submit" name="replay" value="true" class="btn btn-secondary mt-3">Rejouer</button>
-                </form>
+                    <input type="hidden" name="ia" id="is_ia" value="{{ form.is_ia.data }}">
+                    <button type="button" onclick="setIsIA(true); submitForm();" class="btn btn-primary">IA</button>
+                    <button type="button" onclick="setIsIA(false); submitForm();" class="btn btn-primary">Non IA</button>
+                    <a href="{{ url_for('public.replay_guessai') }}" class="btn btn-secondary mt-3">Rejouer</a>
+                </form>                
             </div>
         </div>
     </div>
@@ -26,6 +47,8 @@
     <script>
         function setIsIA(value) {
             document.getElementById('is_ia').value = value;
+        }
+        function submitForm() {
             document.getElementById('generateForm').submit();
         }
     </script>

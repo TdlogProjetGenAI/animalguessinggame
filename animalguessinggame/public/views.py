@@ -437,7 +437,7 @@ def number_path():
 
     if image_files:
         random_image = random.choice(image_files)
-        return url_for('static', filename=f'images_number/{random_image}')
+        return f'images_number/{random_image}'
     else:
         return None
 
@@ -449,8 +449,8 @@ def get_random_gen_number_path():
         images_list.append(random_image_path)
     return images_list
 k = compt()
+
 def gen_number_path():
-    
     model_chemin = os.path.join('animalguessinggame', 'models', 'VAE_MINST.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model_chemin_classif = os.path.join('animalguessinggame', 'models', 'classifierVF_MINST.pt')
@@ -608,36 +608,47 @@ def upload_images_number():
 #     # Return the base64-encoded audio data as JSON
 #     return jsonify({'audio_data': audio_base64})
 
+
 @blueprint.route('/guessai/', methods=['GET', 'POST'])
 def guessai():
     form = GenerateImageForm2()
-    played = session.get('played', False)
+   # played = session.get('played', False)
     if random.choice([True, False]):
-        AI = True
-        image_path = session.get('current_image', gen_number_path())
+        AI = session.get('AI', True)
+        image_path = session.get('current_image_guessai', gen_number_path())
     else:
-        AI = False
-        image_path = session.get('current_image', number_path())
+        AI = session.get('AI', False)
+        image_path = session.get('current_image_guessai', number_path())
 
     congratulations_message = None
 
-    if form.validate_on_submit() and not played:
-        is_ia = form.ia.data
+    if form.validate_on_submit():
 
+        is_ia = form.is_ia
         if AI:
             if is_ia:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
+                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
             else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA"
+                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
         else:
             if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
             else:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image n'a pas été générée par notre IA"
-        played = True
-    session['played'] = played
+                congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
+#        congratulations_message = "boucle2"
+
+    session['current_image_guessai'] = image_path
     return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+
 
 @blueprint.route('/replay_new_game/', methods=['GET'])
 def replay_guessai():
+
+    session.pop('image_guessai', None)
+    if random.choice([True, False]):
+        session['AI'] = True
+        session['current_image_guessai'] = gen_number_path()
+    else:
+        session['AI'] = False
+        session['current_image_guessai'] = number_path()
     return redirect(url_for('public.guessai'))
