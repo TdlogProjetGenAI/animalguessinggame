@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Public forms."""
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField
-from wtforms.validators import DataRequired
+from wtforms import PasswordField, StringField, BooleanField, HiddenField, SubmitField
+from wtforms.validators import DataRequired, ValidationError
 
 from animalguessinggame.user.models import User
 
@@ -37,3 +37,9 @@ class LoginForm(FlaskForm):
             self.username.errors.append("User not activated")
             return False
         return True
+
+
+class GenerateImageForm2(FlaskForm):
+    is_ia = HiddenField()
+    ia = SubmitField('IA')
+    non_ia = SubmitField('Pas IA')

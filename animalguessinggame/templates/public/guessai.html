@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1>Guess AI</h1>
+
+              
+                <div class="image-container">
+                    <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image" alt="Generated Image">
+                </div>
+
+                <form id="generateForm" action="{{ url_for('public.guessai') }}" method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <input type="hidden" name="ia" id="ia" value="{{ form.ia.data }}">
+                    
+                    <button type="button" onclick="setIsIA(true)" class="btn btn-primary">IA</button>
+                    <button type="button" onclick="setIsIA(false)" class="btn btn-primary">Non IA</button>
+                    <button type="submit" name="replay" value="true" class="btn btn-secondary mt-3">Rejouer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setIsIA(value) {
+            document.getElementById('is_ia').value = value;
+            document.getElementById('generateForm').submit();
+        }
+    </script>
+{% endblock %}

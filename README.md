@@ -46,7 +46,6 @@ Run the following commands to bootstrap your environment if you are unable to ru
 
 ```bash
 cd animalguessinggame
-pip install -r requirements/dev.txt
 npm install
 npm run-script build
 npm start  # run the webpack dev server and flask server using concurrently

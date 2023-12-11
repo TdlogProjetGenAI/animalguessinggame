@@ -68,6 +68,74 @@ class PkModel(Model):
             return cls.query.get(int(record_id))
         return None
 
+class Score(db.Model):
+    """Model for storing user scores."""
+    __tablename__ = 'scores'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score_value = db.Column(db.Integer)
+
+    user = db.relationship('User', backref='scores', lazy=True)
+
+    def __init__(self, user_id, score_value):
+        self.user_id = user_id
+        self.score_value = score_value
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        
+    @staticmethod
+    def get_top_scores(limit=10):
+        """Récupère les meilleurs scores."""
+        return Score.query.order_by(Score.score_value.desc()).limit(limit).all()
+
+class ScoreHard(db.Model):
+    """Model for storing scores for the second game."""
+    __tablename__ = 'scores_hard'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score_value = db.Column(db.Integer)
+
+    user = db.relationship('User', backref='scores_hard', lazy=True)
+
+    def __init__(self, user_id, score_value):
+        self.user_id = user_id
+        self.score_value = score_value
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_top_scores(limit=10):
+        """Récupère les meilleurs scores pour le deuxième jeu."""
+        return ScoreHard.query.order_by(ScoreHard.score_value.desc()).limit(limit).all()
+
+class ScoreNum(db.Model):
+    """Model for storing scores for the 3rd game."""
+    __tablename__ = 'scores_num'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score_value = db.Column(db.Integer)
+
+    user = db.relationship('User', backref='scores_num', lazy=True)
+
+    def __init__(self, user_id, score_value):
+        self.user_id = user_id
+        self.score_value = score_value
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_top_scores(limit=10):
+        """Récupère les meilleurs scores pour le troisieme jeu."""
+        return ScoreNum.query.order_by(ScoreNum.score_value.desc()).limit(limit).all()
 
 def reference_col(
     tablename, nullable=False, pk_name="id", foreign_key_kwargs=None, column_kwargs=None

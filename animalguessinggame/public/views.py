@@ -20,15 +20,16 @@ import IPython
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
-
 import os
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 
 from animalguessinggame.extensions import login_manager
-from animalguessinggame.public.forms import LoginForm
+from animalguessinggame.public.forms import LoginForm, GenerateImageForm2
 from animalguessinggame.user.forms import RegisterForm
 from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
+from animalguessinggame.database import Score, ScoreHard, ScoreNum
+#from animalguessinggame.app import db
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -37,10 +38,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
-import os 
 from flask import current_app
 #from pydub import AudioSegment
-import numpy as np
 from flask import redirect, url_for, render_template
 from flask import jsonify
 from flask import render_template, request
@@ -54,6 +53,7 @@ import numpy as np
 from scipy.io.wavfile import write
 from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
 from .levenstein import distance_levenstein
+#from flask_sqlalchemy import SQLAlchemy
 #from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -71,7 +71,6 @@ class compt():
     
     def value_to_zero(self):
         self.k = 0
-        
 
 setattr(__main__, "ResNetClassifier", ResNetClassifier)
 setattr(__main__, "Classifier_mnist", Classifier_mnist)
@@ -155,20 +154,36 @@ def generate_image():
     image_path = session.get('current_image', get_random_image_path())
     congratulations_message = None
     attempts = session.get('attempts', 3)
-    play_win_sound = False
+    win = session.get('win', False)
+    played = session.get('played', False)
+    score = session.get('score', 0)
+    top_scores = Score.get_top_scores()
     sound_file = None
+    play_win_sound = False
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
+            win = True
             play_win_sound = True
-            sound_file=f'sound_animals10/{anws[0]}.mp3'
+            sound_file=f'sound_animals10/{anws[0]}.mp3'            
+            if attempts == 3 and not played:
+                score+=8
+            elif attempts == 2 and not played:
+                score+=5
+            elif attempts == 1 and not played:
+                score+=3
+            played = True
         else:
             attempts -= 1
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
-                
+                user_id = current_user.id if current_user.is_authenticated else "invite"
+                new_score = Score(user_id=user_id, score_value=score)
+                new_score.save()
+                score=0
+                played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
                 play_win_sound = True
@@ -177,25 +192,44 @@ def generate_image():
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
                 play_win_sound = True
                 sound_file=f'sound_animals10/essaie_encore.mp3'
+        top_scores = Score.get_top_scores()
+    session['win'] = win
+    session['played'] = played
     session['attempts'] = attempts
     session['current_image'] = image_path
+    session['score'] = score
 
-    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form,play_win_sound = play_win_sound, sound_file = sound_file)
+    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score=score, top_scores=top_scores,play_win_sound = play_win_sound, sound_file = sound_file)
 
 
 @blueprint.route('/replay/', methods=['GET'])
 def replay():
-    session['attempts'] = 3
-    session.pop('current_image', None)
-    return redirect(url_for('public.generate_image'))
 
+    win = session.get('win', False)
+    if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
+        user_id = current_user.id if current_user.is_authenticated else "invite"
+        new_score = Score(user_id=user_id, score_value=session['score'])
+        new_score.save()
+        top_scores = Score.get_top_scores()
+        session['score'] = 0
+
+    session['attempts'] = 3
+    session['current_image'] = get_random_image_path()
+    session['win'] = False  # Réinitialisez la variable win à False
+    session['played'] = False
+    return redirect(url_for('public.generate_image'))
 
 @blueprint.route('/liste_animals10', methods=['GET'])
 def liste_animals10():
     animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
-    return render_template('public/liste_animals10.html', animals10_dict=animals10_dict)
+    score = session.get('score', 0)
+    return render_template('public/liste_animals10.html', animals10_dict=animals10_dict, score=score)
 
-
+@blueprint.route('/top_scores/', methods=['GET'])
+def top_scores():
+    top_scores = Score.query.order_by(Score.score_value.desc()).limit(10).all()
+    return render_template('public/top_scores.html', top_scores=top_scores)
 
 ####animals90
 
@@ -205,33 +239,69 @@ def generate_image_hard():
     image_path = session.get('current_image_hard', get_random_image_hard_path())
     congratulations_message = None
     attempts = session.get('attempts_hard', 3)
+    win = session.get('win', False)
+    played = session.get('played', False)
+    score = session.get('score', 0)
+    top_scores = ScoreHard.get_top_scores()
+
 
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
-        
+            win = True
+            
+            if attempts == 3 and not played:
+                score+=8
+            elif attempts == 2 and not played:
+                score+=5
+            elif attempts == 1 and not played:
+                score+=3
+            played = True
+
         else:
             attempts -= 1
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
+                user_id = current_user.id if current_user.is_authenticated else "invite"
+                new_score = ScoreHard(user_id=user_id, score_value=score)
+                new_score.save()
+                score=0
+                played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+        top_scores = ScoreHard.get_top_scores()
     session['attempts_hard'] = attempts
     session['current_image_hard'] = image_path
+    session['win'] = win
+    session['played'] = played
+    session['current_image'] = image_path
+    session['score'] = score
+    return render_template('public/image_page_hard.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score = score, top_scores = top_scores)
 
-    return render_template('public/image_page_hard.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
 
-@blueprint.route('/replay_hard/', methods=['GET'])
+
+@blueprint.route('/replay_hard', methods=['GET'])
 def replay_hard():
-    session['attempts_hard'] = 3
     session.pop('current_image_hard', None)
-    return redirect(url_for('public.generate_image_hard'))
+    win = session.get('win', False)
+    if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
+        user_id = current_user.id if current_user.is_authenticated else "invite"
+        new_score = ScoreHard(user_id=user_id, score_value=session['score'])
+        new_score.save()
+        top_scores = ScoreHard.get_top_scores()
+        session['score'] = 0
 
+    session['attempts_hard'] = 3
+    session['current_image'] = get_random_image_path()
+    session['win'] = False  # Réinitialisez la variable win à False
+    session['played'] = False
+    return redirect(url_for('public.generate_image_hard'))
 
 @blueprint.route('/liste_animals90', methods=['GET'])
 def liste_animals90():
@@ -257,31 +327,66 @@ def generate_number():
     current_method_name = session.get('current_method', 'get_random_gen_number_path')
     current_method = globals()[current_method_name]
     images_list_path = session.get('current_images', current_method())
-    congratulations_message = None
     anws = classifie_mnist(images_list_path)
+    congratulations_message = None
     attempts = session.get('attempts_number', 3)
+    win = session.get('win', False)
+    played = session.get('played', False)
+    score = session.get('score', 0)
+    top_scores = ScoreNum.get_top_scores()
+
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
+            win = True
+            
+            if attempts == 3 and not played:
+                score+=8
+            elif attempts == 2 and not played:
+                score+=5
+            elif attempts == 1 and not played:
+                score+=3
+            played = True
+
         else:
             attempts -= 1
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
+                user_id = current_user.id if current_user.is_authenticated else "invite"
+                new_score = ScoreNum(user_id=user_id, score_value=score)
+                new_score.save()
+                score=0
+                played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+        top_scores = ScoreNum.get_top_scores()
     session['attempts_number'] = attempts
     session['current_images'] = images_list_path
-    return render_template('public/number_page.html', images_list_path=images_list_path, congratulations_message=congratulations_message, form=form)
+    session['score'] = score
+    session['win'] = win
+    session['played'] = played
+    return render_template('public/number_page.html', images_list_path=images_list_path, congratulations_message=congratulations_message, form=form, score = score, top_scores = top_scores)
 
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
     session['attempts_number'] = 3
     session.pop('current_images', None)
+    win = session['win']
+    if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
+        user_id = current_user.id if current_user.is_authenticated else "invite"
+        new_score = ScoreNum(user_id=user_id, score_value=session['score'])
+        new_score.save()
+        top_scores = ScoreNum.get_top_scores()
+        session['score'] = 0
+    session['win'] = False  # Réinitialisez la variable win à False
+    session['played'] = False
     return redirect(url_for('public.generate_number'))
+
 
 @blueprint.route('/toggle_method/', methods=['POST'])
 def toggle_method():
@@ -326,7 +431,16 @@ def get_random_number_path():
         return images_list
     else:
         return None
-    
+
+def number_path():
+    images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    if image_files:
+        random_image = random.choice(image_files)
+        return url_for('static', filename=f'images_number/{random_image}')
+    else:
+        return None
 
 def get_random_gen_number_path():
     images_list = []
@@ -494,3 +608,37 @@ def upload_images_number():
 
 #     # Return the base64-encoded audio data as JSON
 #     return jsonify({'audio_data': audio_base64})
+
+@blueprint.route('/guessai/', methods=['GET', 'POST'])
+def guessai():
+    form = GenerateImageForm2()
+    played = session.get('played', False)
+    if random.choice([True, False]):
+        AI = True
+        image_path = session.get('current_image', gen_number_path())
+    else:
+        AI = False
+        image_path = session.get('current_image', number_path())
+
+    congratulations_message = None
+
+    if form.validate_on_submit() and not played:
+        is_ia = form.ia.data
+
+        if AI:
+            if is_ia:
+                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
+            else:
+                congratulations_message = "Perdu ! L'image a été générée par notre IA"
+        else:
+            if is_ia:
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
+            else:
+                congratulations_message = "Félicitations, vous avez gagné ! L'image n'a pas été générée par notre IA"
+        played = True
+    session['played'] = played
+    return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+
+@blueprint.route('/replay_new_game/', methods=['GET'])
+def replay_guessai():
+    return redirect(url_for('public.guessai'))
