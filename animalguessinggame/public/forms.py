@@ -41,7 +41,5 @@ class LoginForm(FlaskForm):
 
 class GenerateImageForm2(FlaskForm):
     is_ia = HiddenField()
-
     ia = SubmitField('IA')
     non_ia = SubmitField('Pas IA')
-    replay = SubmitField('Rejouer')

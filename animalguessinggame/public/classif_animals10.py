@@ -6,6 +6,9 @@ from PIL import Image
 import os 
 from flask import current_app
 
+
+
+
 class ResNetClassifier(nn.Module):
     def __init__(self, num_classes=10):
         super(ResNetClassifier, self).__init__()
