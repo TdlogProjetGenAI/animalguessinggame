@@ -10,6 +10,12 @@
                     <div id="congratulations-message" class="alert alert-success" role="alert">
                         {{ congratulations_message }}
                     </div>
+                    {% if play_win_sound %}
+                        <audio autoplay>
+                            <source src="{{ url_for('static', filename=sound_file) }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                        </audio>
+                    {% endif %}
                 {% endif %}
                 <img id="random-image" src="{{ url_for('static', filename=image_path) }}" class="img-fluid" alt="Random Image">
             </div>

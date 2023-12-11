@@ -158,13 +158,16 @@ def generate_image():
     played = session.get('played', False)
     score = session.get('score', 0)
     top_scores = Score.get_top_scores()
+    sound_file = None
+    play_win_sound = False
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
             win = True
-            
+            play_win_sound = True
+            sound_file=f'sound_animals10/{anws[0]}.mp3'            
             if attempts == 3 and not played:
                 score+=8
             elif attempts == 2 and not played:
@@ -183,8 +186,12 @@ def generate_image():
                 played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+                play_win_sound = True
+                sound_file=f'sound_animals10/tu_chauffes.mp3'
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+                play_win_sound = True
+                sound_file=f'sound_animals10/essaie_encore.mp3'
         top_scores = Score.get_top_scores()
     session['win'] = win
     session['played'] = played
@@ -192,7 +199,7 @@ def generate_image():
     session['current_image'] = image_path
     session['score'] = score
 
-    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score=score, top_scores=top_scores)
+    return render_template('public/image_page.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score=score, top_scores=top_scores,play_win_sound = play_win_sound, sound_file = sound_file)
 
 
 @blueprint.route('/replay/', methods=['GET'])
