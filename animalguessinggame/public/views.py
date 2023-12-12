@@ -644,53 +644,7 @@ def upload_images_number():
 
 
 
-########################music gen
-# @blueprint.route('/generate_music/', methods=['GET', 'POST'])
-# def generate_music():
-#     max_midi_T_x = 1000
-#     DIR = './'
-#     import urllib.request
-#     midi_file_l = ['cs1-2all.mid', 'cs5-1pre.mid', 'cs4-1pre.mid', 'cs3-5bou.mid', 'cs1-4sar.mid', 'cs2-5men.mid', 'cs3-3cou.mid', 'cs2-3cou.mid', 'cs1-6gig.mid', 'cs6-4sar.mid', 'cs4-5bou.mid', 'cs4-3cou.mid', 'cs5-3cou.mid', 'cs6-5gav.mid', 'cs6-6gig.mid', 'cs6-2all.mid', 'cs2-1pre.mid', 'cs3-1pre.mid', 'cs3-6gig.mid', 'cs2-6gig.mid', 'cs2-4sar.mid', 'cs3-4sar.mid', 'cs1-5men.mid', 'cs1-3cou.mid', 'cs6-1pre.mid', 'cs2-2all.mid', 'cs3-2all.mid', 'cs1-1pre.mid', 'cs5-2all.mid', 'cs4-2all.mid', 'cs5-5gav.mid', 'cs4-6gig.mid', 'cs5-6gig.mid', 'cs5-4sar.mid', 'cs4-4sar.mid', 'cs6-3cou.mid']
-#     for midi_file in midi_file_l:
-#     #if os.path.isfile(DIR + midi_file) is None:
-#         urllib.request.urlretrieve ("http://www.jsbach.net/midi/" + midi_file, DIR + midi_file)
 
-#     midi_file_l = glob.glob(DIR + 'cs*.mid')
-
-#     X_list = [] 
-#     X_list = F_convert_midi_2_list(midi_file_l, max_midi_T_x)
-#     model_chemin=os.path.join('animalguessinggame', 'models', 'bach_modele.h5')
-#     model = load_model(model_chemin)
-
-#     sum_v = np.zeros(n_x)
-#     for X_ohe in X_list: 
-#         sum_v += np.sum(X_list[0], axis=0)
-#         prior_v = sum_v/np.sum(sum_v)
-
-#     note_l, prediction_l = F_sample_new_sequence(model, prior_v)
-
-#     new_midi_data = pretty_midi.PrettyMIDI()
-#     cello_program = pretty_midi.instrument_name_to_program('Acoustic Grand Piano')
-#     cello = pretty_midi.Instrument(program=cello_program)
-#     time = 0
-#     step = 0.3
-#     for note_number in note_l:
-#         myNote = pretty_midi.Note(velocity=100, pitch=note_number, start=time, end=time+step)
-#         cello.notes.append(myNote)
-#         time += step
-#     new_midi_data.instruments.append(cello)
-    
-
-#     # Assume that new_midi_data.synthesize(fs=44100) returns a NumPy array
-#     audio_data_np = new_midi_data.synthesize(fs=44100)
-
-#     # Normalize the audio data to the range [-32768, 32767] for int16 format
-#     normalized_audio_data = (audio_data_np * 32767).astype(np.int16)
-#     import base64
-#     audio_base64 = base64.b64encode(normalized_audio_data).decode('utf-8')
-
-#     # Return the base64-encoded audio data as JSON
-#     return jsonify({'audio_data': audio_base64})
 
 @blueprint.route('/guessai/', methods=['GET', 'POST'])
 def guessai():
@@ -725,3 +679,65 @@ def guessai():
 @blueprint.route('/replay_new_game/', methods=['GET'])
 def replay_guessai():
     return redirect(url_for('public.guessai'))
+
+
+
+
+@blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
+def guessai_cifar():
+    form = GenerateImageForm2()
+    played = session.get('played_cifar', False)
+    if random.choice([True, False]):
+        AI = True
+        image_path = session.get('current_image_cifar', gen_number_path())
+    else:
+        AI = False
+        image_path = session.get('current_image_cifar', number_path())
+
+    congratulations_message = None
+
+    if form.validate_on_submit() and not played:
+        is_ia = form.ia.data
+
+        if AI:
+            if is_ia:
+                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
+            else:
+                congratulations_message = "Perdu ! L'image a été générée par notre IA"
+        else:
+            if is_ia:
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
+            else:
+                congratulations_message = "Félicitations, vous avez gagné ! L'image n'a pas été générée par notre IA"
+        played = True
+    session['played_cifar'] = played
+    return render_template('public/guessai_cifar.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+
+@blueprint.route('/replay_new_game_cifar/', methods=['GET'])
+def replay_guessai_cifar():
+    session.pop('current_image_cifar',None)
+    if random
+
+    return redirect(url_for('public.guessai_cifar'))
+
+def get_random_image_cifa_ai():
+    images_folder = os.path.join(current_app.root_path, 'static', 'cifar','FAKE')
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    if image_files:
+        random_image = random.choice(image_files)
+        return f'/cifar/FAKE/{random_image}'
+    else:
+        return None
+    
+def get_random_image_cifar_real():
+    images_folder = os.path.join(current_app.root_path, 'static', 'cifar','REAL')
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    if image_files:
+        random_image = random.choice(image_files)
+        return f'/cifar/REAL/{random_image}'
+    else:
+        return None
+    
+
