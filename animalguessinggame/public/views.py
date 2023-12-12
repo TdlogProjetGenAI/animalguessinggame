@@ -690,53 +690,6 @@ def replay_guessai():
     return redirect(url_for('public.guessai'))
 
 
-
-
-@blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
-def guessai_cifar():
-    form = GenerateImageForm2()
-    played = session.get('played_cifar', False)
-    if random.choice([True, False]):
-        AI = True
-        image_path = session.get('current_image_cifar', gen_number_path())
-    else:
-        AI = False
-        image_path = session.get('current_image_cifar', number_path())
-
-    congratulations_message = None
-
-    if form.validate_on_submit():
-
-        is_ia = form.is_ia
-        if AI:
-            if is_ia:
-                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
-            else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
-        else:
-            if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
-            else:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image n'a pas été générée par notre IA"
-        played = True
-    session['played_cifar'] = played
-    return render_template('public/guessai_cifar.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
-
-@blueprint.route('/replay_new_game/', methods=['GET'])
-def replay_guessai():
-
-    session.pop('image_guessai', None)
-    if random.choice([True, False]):
-        session['AI'] = True
-        session['current_image_guessai'] = gen_number_path()
-    else:
-        session['AI'] = False
-        session['current_image_guessai'] = number_path()
-    return redirect(url_for('public.guessai'))
-
-
-
-
 @blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
 def guessai_cifar():
     form = GenerateImageForm2()
@@ -770,7 +723,6 @@ def guessai_cifar():
 @blueprint.route('/replay_new_game_cifar/', methods=['GET'])
 def replay_guessai_cifar():
     session.pop('current_image_cifar',None)
-    if random
 
     return redirect(url_for('public.guessai_cifar'))
 
