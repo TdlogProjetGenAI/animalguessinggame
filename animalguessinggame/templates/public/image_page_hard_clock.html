@@ -34,7 +34,7 @@
         <div class="col-md-4">
             <h2>Timer</h2>
             <p id="timer">60</p>
-
+            <audio id="timerAudio" src="{{ url_for('static', filename='sound_animals10/clock.mp3') }}" preload="auto"></audio>
             <script>
                 var seconds = localStorage.getItem('timer') || 60;
                 var submitBtn = document.getElementById('submitBtn');
@@ -43,6 +43,7 @@
 
                 function updateTimer() {
                     var timerElement = document.getElementById('timer');
+                    var timerAudio = document.getElementById('timerAudio');
 
                     if (seconds > 0) {
                         seconds--;
@@ -51,6 +52,7 @@
                     } else {
                         timerElement.innerHTML = "Temps écoulé!";
                         disableButtons();
+                        timerAudio.play();
                     }
                 }
 

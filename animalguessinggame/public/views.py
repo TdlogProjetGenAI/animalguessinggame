@@ -714,12 +714,18 @@ def guessai_cifar():
 
 @blueprint.route('/replay_new_game_cifar/', methods=['GET'])
 def replay_guessai_cifar():
+    if random.choice([True,False]):
+        session['AI_cifar']=True
+        session['current_image_cifar']=get_random_image_cifar_ai()
+    else:
+        session['AI_cifar']=False
+        session['current_image_cifar']=get_random_image_cifar_real()    
     session.pop('current_image_cifar',None)
-    if random
+    
 
     return redirect(url_for('public.guessai_cifar'))
 
-def get_random_image_cifa_ai():
+def get_random_image_cifar_ai():
     images_folder = os.path.join(current_app.root_path, 'static', 'cifar','FAKE')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
