@@ -693,38 +693,39 @@ def replay_guessai():
 @blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
 def guessai_cifar():
     form = GenerateImageForm2()
-    played = session.get('played_cifar', False)
+   # played = session.get('played', False)
     if random.choice([True, False]):
-        AI = True
-        image_path = session.get('current_image_cifar', gen_number_path())
+        AI = session.get('AI', True)
+        image_path = session.get('current_image_cifar', get_random_image_cifar_ai())
     else:
-        AI = False
-        image_path = session.get('current_image_cifar', number_path())
+        AI = session.get('AI', False)
+        image_path = session.get('current_image_cifar', get_random_image_cifar_real())
 
     congratulations_message = None
 
-    if form.validate_on_submit() and not played:
-        is_ia = form.ia.data
+    if form.validate_on_submit():
 
+        is_ia = form.is_ia
         if AI:
             if is_ia:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
+                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
             else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA"
+                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
         else:
             if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
             else:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image n'a pas été générée par notre IA"
-        played = True
-    session['played_cifar'] = played
+                congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
+#        congratulations_message = "boucle2"
+
+    session['current_image_cifar'] = image_path
     return render_template('public/guessai_cifar.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_new_game_cifar/', methods=['GET'])
 def replay_guessai_cifar():
-    if random.choice([True,False]):
-        session['AI_cifar']=True
-        session['current_image_cifar']=get_random_image_cifar_ai()
+    if random.choice([True, False]):
+        session['AI_cifar'] = True
+        session['current_image_cifar'] = get_random_image_cifar_ai()
     else:
         session['AI_cifar']=False
         session['current_image_cifar']=get_random_image_cifar_real()    
