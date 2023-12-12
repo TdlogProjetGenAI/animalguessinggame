@@ -113,6 +113,30 @@ class ScoreHard(db.Model):
     def get_top_scores(limit=10):
         """Récupère les meilleurs scores pour le deuxième jeu."""
         return ScoreHard.query.order_by(ScoreHard.score_value.desc()).limit(limit).all()
+    
+####### Score Clock #########
+class ScoreHardClock(db.Model):
+    """Model for storing scores for the second game."""
+    __tablename__ = 'scores_hard_clock'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    score_value = db.Column(db.Integer)
+
+    user = db.relationship('User', backref='scores_hard_clock', lazy=True)
+
+    def __init__(self, user_id, score_value):
+        self.user_id = user_id
+        self.score_value = score_value
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_top_scores(limit=10):
+        """Récupère les meilleurs scores pour le deuxième jeu."""
+        return ScoreHardClock.query.order_by(ScoreHardClock.score_value.desc()).limit(limit).all()    
 
 class ScoreNum(db.Model):
     """Model for storing scores for the 3rd game."""
