@@ -28,7 +28,7 @@ from animalguessinggame.public.forms import LoginForm, GenerateImageForm2
 from animalguessinggame.user.forms import RegisterForm
 from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
-from animalguessinggame.database import Score, ScoreHard, ScoreNum
+from animalguessinggame.database import Score, ScoreHard,ScoreHardClock, ScoreNum
 #from animalguessinggame.app import db
 import torch.nn as nn
 import torch.nn.functional as F
@@ -318,18 +318,18 @@ def liste_animals90():
     animals90_dict = {i: animal for i, animal in enumerate(animals90)}
     return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
 
-#################Contre la montre#############################
+#############Clock#####################
+
 @blueprint.route('/generate_image_hard_clock', methods=['GET','POST'])
 def generate_image_hard_clock():
     form = GenerateImageForm()
     image_path = session.get('current_image_hard_clock', get_random_image_hard_path())
     congratulations_message = None
-    attempts = session.get('attempts_hard', 3)
-    win = session.get('win', False)
-    played = session.get('played', False)
-    score = session.get('score', 0)
-    top_scores = ScoreHard.get_top_scores()
-
+    attempts = session.get('attempts_hard_clock', 1)
+    win = session.get('win_clock', False)
+    played = session.get('played_clock', False)
+    score = session.get('score_clock', 0)
+    top_scores = ScoreHardClock.get_top_scores()
 
     if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
@@ -338,29 +338,46 @@ def generate_image_hard_clock():
             congratulations_message = "Félicitations, vous avez gagné !"
             win = True
             
-            score +=1
+            score += 1
             played = True
 
         else:
             attempts -= 1
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
-                user_id = current_user.id if current_user.is_authenticated else "invite"
-                new_score = ScoreHard(user_id=user_id, score_value=score)
-                new_score.save()
-                score=0
-                played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
-        top_scores = ScoreHard.get_top_scores()
-    session['attempts_hard'] = attempts
+    session['attempts_hard_clock'] = attempts
     session['current_image_hard_clock'] = image_path
-    session['win'] = win
-    session['played'] = played
-    return render_template('public/image_page_hard_clock.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score = score, top_scores = top_scores)
+    session['win_clock'] = win
+    session['played_clock'] = played
+    session['score_clock'] = score
+    return render_template('public/image_page_hard_clock.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score = score)
 
+
+
+
+@blueprint.route('/replay_hard_clock', methods=['GET'])
+def replay_hard_clock():
+    session.pop('current_image_hard_clock', None)
+    win = session.get('win_clock', False)
+    if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
+        user_id = current_user.id if current_user.is_authenticated else "invite"
+        new_score = ScoreHardClock(user_id=user_id, score_value=session['score_clock'])
+        new_score.save()
+        session['score_clock'] = 0
+
+    session['attempts_hard_clock'] = 3
+    session['current_image_clock'] = get_random_image_path()
+    session['win_clock'] = False  # Réinitialisez la variable win à False
+    session['played_clock'] = False
+    return redirect(url_for('public.generate_image_hard_clock'))
+
+
+    
 @blueprint.route('/upload_images_hard_clock', methods=['POST'])
 def upload_images_hard_clock():
     if 'images' not in request.files:
@@ -382,24 +399,6 @@ def upload_images_hard_clock():
     flash('Images téléchargées avec succès')
     return redirect(url_for('public.generate_image_hard_clock'))
 
-
-@blueprint.route('/replay_hard_clock', methods=['GET'])
-def replay_hard_clock():
-    session.pop('current_image_hard_clock', None)
-    win = session.get('win', False)
-    if not win:
-        # L'utilisateur n'a pas encore gagné, réinitialisez le score
-        user_id = current_user.id if current_user.is_authenticated else "invite"
-        new_score = ScoreHard(user_id=user_id, score_value=session['score'])
-        new_score.save()
-        top_scores = ScoreHard.get_top_scores()
-        session['score'] = 0
-
-    session['attempts_hard_clock'] = 3
-    session['current_image_hard_clock'] = get_random_image_path()
-    session['win'] = False  # Réinitialisez la variable win à False
-    session['played'] = False
-    return redirect(url_for('public.generate_image_hard_clock'))
 
 
 
