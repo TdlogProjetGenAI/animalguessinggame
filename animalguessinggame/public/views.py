@@ -645,55 +645,64 @@ def upload_images_number():
 
 
 
+from flask import render_template, session, redirect, url_for
+from .forms import GenerateImageForm2
+import random
+
 @blueprint.route('/guessai/', methods=['GET', 'POST'])
 def guessai():
-    form = GenerateImageForm2()
-   # played = session.get('played', False)
-    if random.choice([True, False]):
-        AI = session.get('AI', True)
-        image_path = session.get('current_image_guessai', gen_number_path())
-    else:
-        AI = session.get('AI', False)
-        image_path = session.get('current_image_guessai', number_path())
+    form = GenerateImageForm_cifar()
+
+    AI = session.get('AI')
+    if AI is None:
+        AI = random.choice([True, False])
+        session['AI'] = AI
+
+    image_path = session.get('current_image_guessai')
+    if image_path is None:
+        image_path = gen_number_path() if AI else number_path()
+        session['current_image_guessai'] = image_path
 
     congratulations_message = None
 
     if form.validate_on_submit():
+        is_ia = form.is_ia.data  # This should now correctly get the value of 'is_ia'
 
-        is_ia = form.is_ia
         if AI:
             if is_ia:
-                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
+                congratulations_message = "Félicitations ! L'image a été générée par notre IA"
             else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
+                congratulations_message = "Perdu ! L'image a été générée par notre IA"
         else:
             if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
             else:
                 congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
-#        congratulations_message = "boucle2"
 
-    session['current_image_guessai'] = image_path
+        # Reset the image path to generate a new image on the next round
+        session.pop('current_image_guessai', None)
+
     return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
-
-@blueprint.route('/replay_new_game/', methods=['GET'])
+@blueprint.route('/replay_guessai/', methods=['GET'])
 def replay_guessai():
+    AI = random.choice([True, False])
+    session['AI'] = AI
 
-    session.pop('image_guessai', None)
-    if random.choice([True, False]):
-        session['AI'] = True
+    if AI:
         session['current_image_guessai'] = gen_number_path()
     else:
-        session['AI'] = False
         session['current_image_guessai'] = number_path()
+
     return redirect(url_for('public.guessai'))
 
+
 from wtforms import PasswordField, StringField, BooleanField, HiddenField, SubmitField
+
+
 class GenerateImageForm_cifar(FlaskForm):
-    is_ia = HiddenField()
-    ia = SubmitField('IA')
-    non_ia = SubmitField('Pas IA')
+    is_ia = SubmitField('IA')
+
 
 @blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
 def guessai_cifar():
@@ -712,7 +721,7 @@ def guessai_cifar():
     congratulations_message = None
 
     if form.validate_on_submit():
-        is_ia = form.is_ia.data
+        is_ia = form.is_ia.data  # This should now correctly get the value of 'is_ia'
 
         ground_truth = session.get('ground_truth_cifar')
         if ground_truth is None:
@@ -720,9 +729,9 @@ def guessai_cifar():
             session['ground_truth_cifar'] = ground_truth
 
         if is_ia == ground_truth:
-            congratulations_message = "Félicitations ! L'image a été générée par notre IA" if ground_truth else "Félicitations ! L'image n'a pas été générée par notre IA"
+            congratulations_message = "Gagné ! C'était de l'IA." if ground_truth else "Gagné ! Ce n'était pas de l'IA."
         else:
-            congratulations_message = "Perdu ! L'image a été générée par notre IA" if ground_truth else "Perdu ! L'image n'a pas été générée par notre IA"
+            congratulations_message = "Perdu ! C'était de l'IA." if ground_truth else "Perdu ! Ce n'était pas de l'IA."
 
         # Reset the image path to generate a new image on the next round
         session.pop('current_image_cifar', None)
@@ -743,6 +752,8 @@ def replay_guessai_cifar():
     session.pop('ground_truth_cifar', None)
 
     return redirect(url_for('public.guessai_cifar'))
+
+
 
 
 

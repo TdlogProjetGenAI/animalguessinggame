@@ -6,50 +6,40 @@
         display: flex;
         flex-wrap: nowrap;
     }
-  
+
     .generated-image {
         width: 128px;
         height: 128px;
-        margin: 0px; 
+        margin: 0px;
     }
-  
+
     .score-table {
         margin-top: 20px;
     }
-  </style>
-  
+</style>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                {% if congratulations_message %}
-                    <div id="congratulations-message" class="alert alert-success" role="alert">
-                        {{ congratulations_message }}
-                    </div>
-                {% endif %}
-
-              
-                <div class="image-container">
-                    <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image" alt="Generated Image">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            {% if congratulations_message %}
+                <div id="congratulations-message" class="alert alert-success" role="alert">
+                    {{ congratulations_message }}
                 </div>
+            {% endif %}
 
-                <form id="generateForm" action="{{ url_for('public.guessai') }}" method="post">
-                    {{ form.hidden_tag() }}
-                    <input type="hidden" name="ia" id="is_ia" value="{{ form.is_ia.data }}">
-                    <button type="button" onclick="setIsIA(true); submitForm();" class="btn btn-primary">IA</button>
-                    <button type="button" onclick="setIsIA(false); submitForm();" class="btn btn-primary">Non IA</button>
-                    <a href="{{ url_for('public.replay_guessai') }}" class="btn btn-secondary mt-3">Rejouer</a>
-                </form>                
+            <div class="image-container">
+                <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image"
+                    alt="Generated Image">
             </div>
+
+            <form id="generateForm_cifar" action="{{ url_for('public.guessai') }}" method="post">
+                {{ form.hidden_tag() }}
+                <button type="submit" name="is_ia" value="true" class="btn btn-primary">IA</button>
+                <button type="submit" name="is_ia" value="false" class="btn btn-primary">Non IA</button>
+                <a href="{{ url_for('public.replay_guessai') }}" class="btn btn-secondary mt-3">Rejouer</a>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        function setIsIA(value) {
-            document.getElementById('is_ia').value = value;
-        }
-        function submitForm() {
-            document.getElementById('generateForm').submit();
-        }
-    </script>
 {% endblock %}
