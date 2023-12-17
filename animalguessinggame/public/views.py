@@ -331,6 +331,7 @@ def generate_image_hard_clock():
     score = session.get('score_clock', 0)
     top_scores = ScoreHardClock.get_top_scores()
 
+    session['current_image_hard_clock'] = image_path
     if attempts > 0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
