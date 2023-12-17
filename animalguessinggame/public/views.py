@@ -44,6 +44,7 @@ from flask import redirect, url_for, render_template
 from flask import jsonify
 from flask import render_template, request
 import time
+import logging
 from flask import redirect
 from flask import session
 from flask_wtf import FlaskForm
@@ -320,10 +321,13 @@ def liste_animals90():
 
 #############Clock#####################
 
-@blueprint.route('/generate_image_hard_clock', methods=['GET','POST'])
+
+@blueprint.route('/generate_image_hard_clock', methods=['GET', 'POST'])
 def generate_image_hard_clock():
     form = GenerateImageForm()
     image_path = session.get('current_image_hard_clock', get_random_image_hard_path())
+    
+    
     congratulations_message = None
     attempts = session.get('attempts_hard_clock', 1)
     win = session.get('win_clock', False)
@@ -331,30 +335,40 @@ def generate_image_hard_clock():
     score = session.get('score_clock', 0)
     top_scores = ScoreHardClock.get_top_scores()
 
-    if attempts>0 and form.validate_on_submit():
+    if attempts > 0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
             win = True
-            
+
             score += 1
             played = True
+
+            # Générer une nouvelle image ici
+            new_image_path = get_random_image_hard_path()
+            session['current_image_hard_clock'] = new_image_path
+            
 
         else:
             attempts -= 1
             if attempts == 0:
+                new_image_path = get_random_image_hard_path()
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
+                session['current_image_hard_clock'] = new_image_path
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
+                session['current_image_hard_clock'] = image_path
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
+                session['current_image_hard_clock'] = image_path
+
     session['attempts_hard_clock'] = attempts
-    session['current_image_hard_clock'] = image_path
     session['win_clock'] = win
     session['played_clock'] = played
     session['score_clock'] = score
-    return render_template('public/image_page_hard_clock.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score = score)
+    return render_template('public/image_page_hard_clock.html', image_path=session['current_image_hard_clock'],
+                           congratulations_message=congratulations_message, form=form, score=score)
 
 
 
@@ -371,7 +385,7 @@ def replay_hard_clock():
         session['score_clock'] = 0
 
     session['attempts_hard_clock'] = 3
-    session['current_image_clock'] = get_random_image_path()
+    session['current_image_hard_clock'] = get_random_image_hard_path()
     session['win_clock'] = False  # Réinitialisez la variable win à False
     session['played_clock'] = False
     return redirect(url_for('public.generate_image_hard_clock'))
