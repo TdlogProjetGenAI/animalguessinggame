@@ -1,32 +1,45 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1>Guess AI</h1>
 
-              
-                <div class="image-container">
-                    <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image" alt="Generated Image">
+<style>
+    .image-container {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .generated-image {
+        width: 512px;
+        height: 512px;
+        margin: 0px;
+    }
+
+    .score-table {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            {% if congratulations_message %}
+                <div id="congratulations-message" class="alert alert-success" role="alert">
+                    {{ congratulations_message }}
                 </div>
+            {% endif %}
 
-                <form id="generateForm" action="{{ url_for('public.guessai_cifar') }}" method="post">
-                    {{ form.hidden_tag() }}
-                    
-                    <input type="hidden" name="ia" id="ia" value="{{ form.ia.data }}">
-                    
-                    <button type="button" onclick="setIsIA(true)" class="btn btn-primary">IA</button>
-                    <button type="button" onclick="setIsIA(false)" class="btn btn-primary">Non IA</button>
-                    <button type="submit" name="replay" value="true" class="btn btn-secondary mt-3">Rejouer</button>
-                </form>
+            <div class="image-container">
+                <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid generated-image"
+                    alt="Generated Image">
             </div>
+
+            <form id="generateForm_cifar" action="{{ url_for('public.guessai_cifar') }}" method="post">
+                {{ form.hidden_tag() }}
+                <button type="submit" name="is_ia" value="true" class="btn btn-primary">IA</button>
+                <button type="submit" name="is_ia" value="false" class="btn btn-primary">Non IA</button>
+                <a href="{{ url_for('public.replay_guessai_cifar') }}" class="btn btn-secondary mt-3">Rejouer</a>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        function setIsIA(value) {
-            document.getElementById('is_ia').value = value;
-            document.getElementById('generateForm').submit();
-        }
-    </script>
 {% endblock %}

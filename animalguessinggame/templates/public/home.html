@@ -55,6 +55,14 @@
         margin-top: 10px;
     }
 
+    .button-image a {
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+    }
+
     .button-image img {
         width: 300px;
         height: 200px;
@@ -83,12 +91,24 @@
         </div>
 
         <div class="button-image">
-            <img src="{{ url_for('static', filename='images_home/animalguessinggame.jpg') }}" alt="Animal Image">
-            <img src="{{ url_for('static', filename='images_home/zoo.png') }}" alt="Hard Animal Image">
-            <img src="{{ url_for('static', filename='images_home/numberguessinggame.jpg') }}" alt="Number Image">
-            <img src="{{ url_for('static', filename='images_home/ai_number.jpg') }}" alt="Guess AI number">
-            <img src="{{ url_for('static', filename='images_home/ia_cifar.jpg') }}" alt="Guess AI">
-            <img src="{{ url_for('static', filename='images_home/clock.jpg') }}" alt="Conter Clock">
+            <a href="{{ url_for('public.generate_image') }}">
+                <img src="{{ url_for('static', filename='images_home/animalguessinggame.jpg') }}" alt="Animal Image">
+            </a>
+            <a href="{{ url_for('public.generate_image_hard') }}">
+                <img src="{{ url_for('static', filename='images_home/zoo.png') }}" alt="Hard Animal Image">
+            </a>
+            <a href="{{ url_for('public.generate_number') }}">
+                <img src="{{ url_for('static', filename='images_home/numberguessinggame.jpg') }}" alt="Number Image">
+            </a>
+            <a href="{{ url_for('public.guessai') }}">
+                <img src="{{ url_for('static', filename='images_home/ai_number.jpg') }}" alt="Guess AI number">
+            </a>
+            <a href="{{ url_for('public.guessai_cifar') }}">
+                <img src="{{ url_for('static', filename='images_home/ia_cifar.jpg') }}" alt="Guess AI">
+            </a>
+            <a href="{{ url_for('public.generate_image_hard_clock') }}">
+                <img src="{{ url_for('static', filename='images_home/clock.jpg') }}" alt="Conter Clock">
+            </a>
         </div>
     </div>
 </div>
