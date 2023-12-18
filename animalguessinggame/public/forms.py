@@ -39,8 +39,15 @@ class LoginForm(FlaskForm):
         return True
 
 
-class GenerateImageForm2(FlaskForm):
-    is_ia = HiddenField()
-    ia = SubmitField('IA')
-    non_ia = SubmitField('Pas IA')
+class GenerateImageForm_IA(FlaskForm):
+    is_ia = SubmitField('IA')
+    username = StringField('Username') 
+    password = PasswordField('Password')  
+    prompt = StringField('Prompt')
+    submit = SubmitField('Soumettre')
 
+class GenerateImageForm(FlaskForm):
+    username = StringField('Username') 
+    password = PasswordField('Password')  
+    prompt = StringField('Prompt')
+    submit = SubmitField('Soumettre')

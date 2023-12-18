@@ -11,25 +11,18 @@ from flask import (
     jsonify
 )
 import random
-
-#import pretty_midi
-from scipy.io import wavfile
 import IPython
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
 import os
 from flask_login import login_required, login_user, logout_user, current_user
-
 from animalguessinggame.extensions import login_manager
-from animalguessinggame.public.forms import LoginForm, GenerateImageForm2
+from animalguessinggame.public.forms import LoginForm, GenerateImageForm_IA, GenerateImageForm
 from animalguessinggame.user.forms import RegisterForm
 from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
 from animalguessinggame.database import Score, ScoreHard,ScoreHardClock, ScoreNum
-#from animalguessinggame.app import db
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -39,22 +32,17 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 from flask import current_app
-#from pydub import AudioSegment
 from flask import redirect, url_for, render_template
-from flask import jsonify
 from flask import render_template, request
 import time
 from flask import redirect
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from flask import Flask
 import numpy as np
-from scipy.io.wavfile import write
 from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90, Classifier_mnist, VAE, classifie_mnist
 from .levenstein import distance_levenstein
-#from flask_sqlalchemy import SQLAlchemy
-#from .bach import F_get_max_temperature, F_convert_midi_2_list, F_sample_new_sequence
+
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
 import __main__
@@ -77,11 +65,7 @@ setattr(__main__, "Classifier_mnist", Classifier_mnist)
 setattr(__main__, "VAE", VAE)
 setattr(__main__, "compteur", compt)
 
-class GenerateImageForm(FlaskForm):
-    username = StringField('Username') 
-    password = PasswordField('Password')  
-    prompt = StringField('Prompt')
-    submit = SubmitField('Soumettre')
+
 
 
 @login_manager.user_loader
@@ -95,7 +79,6 @@ def home():
     """Home page."""
     form = LoginForm(request.form)
     current_app.logger.info("Hello from the home page!")
-    # Handle logging in
     if request.method == "POST":
         if form.validate_on_submit():
             login_user(form.user)
@@ -143,13 +126,21 @@ def about():
 
 
 ##animals10
-# Ajoutez cette importation à votre fichier Python
-from flask import session
 
-# ...
 
 @blueprint.route('/generate_image/', methods=['GET', 'POST'])
 def generate_image():
+    """
+    Draw a new image in a dataset of animals and allows the user to guess the name of the animal in the image.
+    
+    Supported HTTP Methods:
+        - GET: Displays a new image.
+        - POST: Validates the user-provided answer.
+
+    Returns:
+        flask.render_template: HTML page displaying the image, form, congratulations messages,
+                              score, and top scores.
+    """
     form = GenerateImageForm()
     image_path = session.get('current_image', get_random_image_path())
     congratulations_message = None
@@ -204,10 +195,14 @@ def generate_image():
 
 @blueprint.route('/replay/', methods=['GET'])
 def replay():
+    """
+    Resets the session to allow the user to replay after completing a game.
 
+    Returns:
+        flask.redirect: Redirects to the 'public.generate_image' route.
+    """
     win = session.get('win', False)
     if not win:
-        # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
         new_score = Score(user_id=user_id, score_value=session['score'])
         new_score.save()
@@ -216,18 +211,30 @@ def replay():
 
     session['attempts'] = 3
     session['current_image'] = get_random_image_path()
-    session['win'] = False  # Réinitialisez la variable win à False
+    session['win'] = False  
     session['played'] = False
     return redirect(url_for('public.generate_image'))
 
 @blueprint.route('/liste_animals10', methods=['GET'])
 def liste_animals10():
+    """
+    Displays a predefined list of 10 animals.
+
+    Returns:
+        flask.render_template: HTML page showing the list of 10 animals and the current score.
+    """
     animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
     score = session.get('score', 0)
     return render_template('public/liste_animals10.html', animals10_dict=animals10_dict, score=score)
 
 @blueprint.route('/top_scores/', methods=['GET'])
 def top_scores():
+    """
+    Displays the top scores recorded in the database.
+
+    Returns:
+        flask.render_template: HTML page showing the top scores.
+    """
     top_scores = Score.query.order_by(Score.score_value.desc()).limit(10).all()
     return render_template('public/top_scores.html', top_scores=top_scores)
 
@@ -235,6 +242,17 @@ def top_scores():
 
 @blueprint.route('/generate_image_hard', methods=['GET','POST'])
 def generate_image_hard():
+    """
+    Draw a new image in a larger dataset of animals and allows the user to guess the name of the animal in the image.
+    
+    Supported HTTP Methods:
+        - GET: Displays a new image.
+        - POST: Validates the user-provided answer.
+
+    Returns:
+        flask.render_template: HTML page displaying the image, form, congratulations messages,
+                              score, and top scores.
+    """
     form = GenerateImageForm()
     image_path = session.get('current_image_hard', get_random_image_hard_path())
     congratulations_message = None
@@ -286,6 +304,12 @@ def generate_image_hard():
 
 @blueprint.route('/replay_hard', methods=['GET'])
 def replay_hard():
+    """
+    Resets the session to allow the user to replay after completing a game.
+
+    Returns:
+        flask.redirect: Redirects to the 'public.generate_image_hard' route.
+    """
     session.pop('current_image_hard', None)
     win = session.get('win', False)
     if not win:
@@ -304,6 +328,12 @@ def replay_hard():
 
 @blueprint.route('/liste_animals90', methods=['GET'])
 def liste_animals90():
+    """
+    Displays a predefined list of 90 animals.
+
+    Returns:
+        flask.render_template: HTML page showing the list of 90 animals and the current score.
+    """
     animals90 = [
     'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'bœuf', 'calamar', 'calao', 'canard',
     'cafard', 'cerf', 'chat', 'chauve-souris', 'cheval', 'chenille', 'chimpanzé', 'chien', 'cochon', 'colibri', 'coq',
@@ -433,6 +463,18 @@ def upload_images_hard_clock():
 #################number#######################
 @blueprint.route('/generate_number/', methods=['GET', 'POST'])
 def generate_number():
+    """
+    Generates a new number or draw a number in a dataset of numbers (according to the method choosen by the player) and allows 
+    the user to guess the name of the animal in the image.
+    
+    Supported HTTP Methods:
+        - GET: Displays a new image.
+        - POST: Validates the user-provided answer.
+
+    Returns:
+        flask.render_template: HTML page displaying the image, form, congratulations messages,
+                              score, and top scores.
+    """
     form = GenerateImageForm()
     current_method_name = session.get('current_method', 'get_random_gen_number_path')
     current_method = globals()[current_method_name]
@@ -483,6 +525,12 @@ def generate_number():
 
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
+    """
+    Resets the session to allow the user to replay after completing a game.
+
+    Returns:
+        flask.redirect: Redirects to the 'public.generate_number' route.
+    """
     session['attempts_number'] = 3
     session.pop('current_images', None)
     win = session['win']
@@ -500,6 +548,15 @@ def replay_number():
 
 @blueprint.route('/toggle_method/', methods=['POST'])
 def toggle_method():
+    """
+    Toggles between two methods for either generating random numbers or drawing randomly numbers in a dataset in the session.
+
+    The function switches between 'get_random_gen_number_path' and 'get_random_number_path' methods
+    to display random numbers and updates the session accordingly.
+
+    Returns:
+        flask.redirect: Redirects to the previous page or the 'public.generate_number' route.
+    """
     current_method_name = session.get('current_method', 'get_random_gen_number_path')
     if current_method_name == 'get_random_gen_number_path':
         session['current_method'] = 'get_random_number_path'
@@ -509,6 +566,15 @@ def toggle_method():
 
 
 def get_random_image_path():
+    """
+    Returns a randomly chosen image path from the 'images_animals10' folder.
+
+    The function looks for image files  in the
+    'images_animals10' folder and returns a randomly selected image path.
+
+    Returns:
+        str or None: A string representing the path to a random image, or None if no images are found.
+    """
     images_folder = os.path.join(current_app.root_path, 'static', 'images_animals10')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
@@ -519,6 +585,15 @@ def get_random_image_path():
         return None
 
 def get_random_image_hard_path():
+    """
+    Returns a randomly chosen image path from the 'images_animals90' folder.
+
+    The function looks for image files (with extensions '.png', '.jpg', or '.jpeg') in the
+    'images_animals90' folder and returns a randomly selected image path.
+
+    Returns:
+        str or None: A string representing the path to a random image, or None if no images are found.
+    """
     images_folder = os.path.join(current_app.root_path, 'static', 'images_animals90')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
@@ -530,6 +605,16 @@ def get_random_image_hard_path():
     
 
 def get_random_number_path():
+    """
+    Returns a list of randomly chosen image paths from the 'images_number' folder.
+
+    The function looks for image files (with extensions '.png', '.jpg', or '.jpeg') in the
+    'images_number' folder and returns a list of randomly selected image paths, with the
+    number of images varying between 1 and 4.
+
+    Returns:
+        list or None: A list of strings representing paths to random images, or None if no images are found.
+    """
     images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
     images_list = []
@@ -543,6 +628,15 @@ def get_random_number_path():
         return None
 
 def number_path():
+    """
+    Returns a randomly chosen image path from the 'images_number' folder.
+
+    The function looks for image files (with extensions '.png', '.jpg', or '.jpeg') in the
+    'images_number' folder and returns a randomly selected image path.
+
+    Returns:
+        str or None: A string representing the path to a random image, or None if no images are found.
+    """
     images_folder = os.path.join(current_app.root_path, 'static', 'images_number')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
@@ -553,15 +647,32 @@ def number_path():
         return None
 
 def get_random_gen_number_path():
+    """
+    Generates a list of randomly generated image paths using the 'gen_number_path' function.
+
+    Returns:
+        list: A list of strings representing randomly generated image paths.
+    """
     images_list = []
     number_images = random.randint(1,4)
     for k in range(number_images):
         random_image_path = gen_number_path()
         images_list.append(random_image_path)
     return images_list
+
 k = compt()
 
 def gen_number_path():
+    """
+    Generates a random image using a Variational Autoencoder (VAE) and a classifier model.
+
+    This function employs a Variational Autoencoder (VAE) to generate a random image in a latent space.
+    The generated image is then classified using a pre-trained classifier model. The classifier assigns
+    confidence scores to each potential image, and the image with the highest confidence score is selected.
+
+    Returns:
+        str: The path to the generated image.
+    """
     model_chemin = os.path.join('animalguessinggame', 'models', 'VAE_MINST.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model_chemin_classif = os.path.join('animalguessinggame', 'models', 'classifierVF_MINST.pt')
@@ -604,6 +715,24 @@ from werkzeug.utils import secure_filename
 
 @blueprint.route('/upload_images', methods=['POST'])
 def upload_images():
+    """
+    Handles image upload via a POST request. The images uploaded go in the animals10 dataset.
+
+    Expects images in the 'images' field of the request. Displays flash messages for
+    no files uploaded or all files having empty filenames. Valid files are saved to
+    UPLOAD_FOLDER after security checks.
+
+    Returns:
+        flask.redirect: Redirects to 'public.generate_image' after processing the upload.
+
+    Flash Messages:
+        - 'Aucun fichier téléchargé': No files included in the request.
+        - 'Aucun fichier sélectionné': All included files have empty filenames.
+        - 'Images téléchargées avec succès': Successful upload of images.
+
+    Note:
+        The allowed_file function is assumed to check allowed file extensions.
+    """
     if 'images' not in request.files:
         flash('Aucun fichier téléchargé')
         return redirect(url_for('public.generate_image'))
@@ -625,6 +754,16 @@ def upload_images():
 
 @blueprint.route('/upload_images_hard', methods=['POST'])
 def upload_images_hard():
+    """
+    Handles image upload via a POST request. The images uploaded go in the animals90 dataset.
+
+    Expects images in the 'images' field of the request. Displays flash messages for
+    no files uploaded or all files having empty filenames. Valid files are saved to
+    UPLOAD_FOLDER after security checks.
+
+    Returns:
+        flask.redirect: Redirects to 'public.generate_image_hard' after processing the upload.
+    """
     if 'images' not in request.files:
         flash('Aucun fichier téléchargé')
         return redirect(url_for('public.generate_image_hard'))
@@ -648,6 +787,16 @@ def upload_images_hard():
 
 @blueprint.route('/upload_images_number', methods=['POST'])
 def upload_images_number():
+    """
+    Handles image upload via a POST request. The images uploaded go in the number dataset.
+
+    Expects images in the 'images' field of the request. Displays flash messages for
+    no files uploaded or all files having empty filenames. Valid files are saved to
+    UPLOAD_FOLDER after security checks.
+
+    Returns:
+        flask.redirect: Redirects to 'public.generate_number' after processing the upload.
+    """
     if 'images' not in request.files:
         flash('Aucun fichier téléchargé')
         return redirect(url_for('public.generate_number'))
@@ -675,82 +824,59 @@ def upload_images_number():
 
 @blueprint.route('/guessai/', methods=['GET', 'POST'])
 def guessai():
-    form = GenerateImageForm2()
-   # played = session.get('played', False)
-    if random.choice([True, False]):
-        AI = session.get('AI', True)
-        image_path = session.get('current_image_guessai', gen_number_path())
-    else:
-        AI = session.get('AI', False)
-        image_path = session.get('current_image_guessai', number_path())
+    """
+    Handles the guessing game for AI-generated images of numbers.
+
+    Displays an image and allows users to guess whether it was generated by AI.
+    Compares the user's guess with the ground truth and provides a congratulations message.
+
+    Returns:
+        flask.render_template: Renders the 'public/guessai.html' template.
+    """
+    form = GenerateImageForm_IA()
+    AI = session.get('AI')
+    if AI is None:
+        AI = random.choice([True, False])
+        session['AI'] = AI
+
+    image_path = session.get('current_image_guessai')
+    if image_path is None:
+        image_path = gen_number_path() if AI else number_path()
+        session['current_image_guessai'] = image_path
 
     congratulations_message = None
 
     if form.validate_on_submit():
-
-        is_ia = form.is_ia
+        is_ia = form.is_ia.data  
         if AI:
             if is_ia:
-                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
+            
+                congratulations_message = "Félicitations ! C'était de IA"
             else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
+                
+                congratulations_message = "Perdu ! C'était de IA "
         else:
             if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
+                congratulations_message = "Perdu ! Ce n'était pas de IA"
             else:
-                congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
-#        congratulations_message = "boucle2"
+                congratulations_message = "Félicitations ! Ce n'était pas de IA"
 
     session['current_image_guessai'] = image_path
     return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
 
-@blueprint.route('/replay_new_game/', methods=['GET'])
-def replay_guessai():
 
-    session.pop('image_guessai', None)
-    if random.choice([True, False]):
-        session['AI'] = True
-        session['current_image_guessai'] = gen_number_path()
-    else:
-        session['AI'] = False
-        session['current_image_guessai'] = number_path()
-    return redirect(url_for('public.guessai'))
-
-
-@blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
-def guessai_cifar():
-    form = GenerateImageForm2()
-    played = session.get('played_cifar', False)
-    if random.choice([True, False]):
-        AI = True
-        image_path = session.get('current_image_cifar', gen_number_path())
-    else:
-        AI = False
-        image_path = session.get('current_image_cifar', number_path())
-
-    congratulations_message = None
-
-    if form.validate_on_submit() and not played:
-        is_ia = form.ia.data
-
-        if AI:
-            if is_ia:
-                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
-            else:
-                congratulations_message = "Perdu ! L'image a été générée par notre IA"
-        else:
-            if is_ia:
-                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA"
-            else:
-                congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
-
-        session.pop('current_image_guessai', None)
-
-    return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_guessai/', methods=['GET'])
 def replay_guessai():
+    """
+    Initiates a new round of the guessing game.
+
+    Generates a new AI status and selects a random image for the next round.
+
+    Returns:
+        flask.redirect: Redirects to the 'public.guessai' route.
+    """
     AI = random.choice([True, False])
     session['AI'] = AI
 
@@ -765,77 +891,96 @@ def replay_guessai():
 from wtforms import PasswordField, StringField, BooleanField, HiddenField, SubmitField
 
 
-class GenerateImageForm_cifar(FlaskForm):
-    is_ia = SubmitField('IA')
-    username = StringField('Username') 
-    password = PasswordField('Password')  
-    prompt = StringField('Prompt')
-    submit = SubmitField('Soumettre')
 
+@blueprint.route('/guessai_hard/', methods=['GET', 'POST'])
+def guessai_hard():
+    """
+    Handles the guessing game for AI-generated every-day life images and paintings.
 
-@blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
-def guessai_cifar():
-    form = GenerateImageForm_cifar()
+    Displays an image and allows users to guess whether it was generated by AI.
+    Compares the user's guess with the ground truth and provides a congratulations message.
 
-    AI = session.get('AI_cifar')
+    Returns:
+        flask.render_template: Renders the 'public/guessai_hard.html' template.
+    """
+    form = GenerateImageForm_IA()
+
+    AI = session.get('AI_hard')
     if AI is None:
         AI = random.choice([True, False])
-        session['AI_cifar'] = AI
+        session['AI_hard'] = AI
 
-    image_path = session.get('current_image_cifar')
+    image_path = session.get('current_image_hard')
     if image_path is None:
-        image_path = get_random_image_cifar_ai() if AI else get_random_image_cifar_real()
-        session['current_image_cifar'] = image_path
+        image_path = get_random_image_hard_ai() if AI else get_random_image_hard_real()
+        session['current_image_hard'] = image_path
 
     congratulations_message = None
 
     if form.validate_on_submit():
         is_ia = form.is_ia.data  
 
-        ground_truth = session.get('ground_truth_cifar')
+        ground_truth = session.get('ground_truth_hard')
         if ground_truth is None:
             ground_truth = AI
-            session['ground_truth_cifar'] = ground_truth
+            session['ground_truth_hard'] = ground_truth
 
         if is_ia == ground_truth:
             congratulations_message = "Gagné ! C'était de l'IA." if ground_truth else "Gagné ! Ce n'était pas de l'IA."
         else:
             congratulations_message = "Perdu ! C'était de l'IA." if ground_truth else "Perdu ! Ce n'était pas de l'IA."
 
-        session.pop('current_image_cifar', None)
+        session.pop('current_image_hard', None)
 
-    return render_template('public/guessai_cifar.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+    return render_template('public/guessai_hard.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
 
-@blueprint.route('/replay_new_game_cifar/', methods=['GET'])
-def replay_guessai_cifar():
-    if random.choice([True,False]):
-        session['AI_cifar']=True
-        session['current_image_cifar']=get_random_image_cifar_ai()
+@blueprint.route('/replay_new_game_hard/', methods=['GET'])
+def replay_guessai_hard():
+    AI = random.choice([True, False])
+    session['AI_hard'] = AI
+
+    if AI:
+        session['current_image_hard'] = get_random_image_hard_ai()
     else:
-        session['AI_cifar']=False
-        session['current_image_cifar']=get_random_image_cifar_real()    
-    session.pop('current_image_cifar',None)
-    
+        session['current_image_hard'] = get_random_image_hard_real()
 
-    return redirect(url_for('public.guessai_cifar'))
+    session.pop('ground_truth_hard', None)
 
-def get_random_image_cifar_ai():
-    images_folder = os.path.join(current_app.root_path, 'static', 'cifar','FAKE')
+    return redirect(url_for('public.guessai_hard'))
+
+
+
+def get_random_image_hard_ai():
+    """
+    Get a random image path from the 'FAKE' folder for the AI mode.
+
+    Returns:
+        str: The path to a random image generated by AI in the 'FAKE' folder.
+            Returns None if no AI-generated images are available.
+    """
+    images_folder = os.path.join(current_app.root_path, 'static', 'IA_notIA','FAKE')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.JPEG'))]
 
     if image_files:
         random_image = random.choice(image_files)
-        return f'/cifar/FAKE/{random_image}'
+        return f'/IA_notIA/FAKE/{random_image}'
     else:
         return None
     
-def get_random_image_cifar_real():
-    images_folder = os.path.join(current_app.root_path, 'static', 'cifar','REAL')
+def get_random_image_hard_real():
+    """
+    Get a random image path from the 'REAL' folder for the real mode.
+
+    Returns:
+        str: The path to a random image not generated by AI in the 'REAL' folder.
+            Returns None if no real player images are available.
+    """
+    images_folder = os.path.join(current_app.root_path, 'static', 'IA_notIA','REAL')
     image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.JPEG'))]
 
     if image_files:
         random_image = random.choice(image_files)
-        return f'/cifar/REAL/{random_image}'
+        return f'/IA_notIA/REAL/{random_image}'
     else:
         return None
     

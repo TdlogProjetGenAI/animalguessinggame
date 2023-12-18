@@ -28,11 +28,11 @@
                     alt="Generated Image">
             </div>
 
-            <form id="generateForm_cifar" action="{{ url_for('public.guessai_cifar') }}" method="post">
+            <form id="generateForm_IA" action="{{ url_for('public.guessai_hard') }}" method="post">
                 {{ form.hidden_tag() }}
                 <button type="submit" name="is_ia" value="true" class="btn btn-primary">IA</button>
                 <button type="submit" name="is_ia" value="false" class="btn btn-primary">Non IA</button>
-                <a href="{{ url_for('public.replay_guessai_cifar') }}" class="btn btn-secondary mt-3">Rejouer</a>
+                <a href="{{ url_for('public.replay_guessai_hard') }}" class="btn btn-secondary mt-3">Rejouer</a>
             </form>
         </div>
     </div>

@@ -11,16 +11,34 @@ from flask import current_app
 
 class ResNetClassifier(nn.Module):
     def __init__(self, num_classes=10):
+        """
+        Initialize a ResNet classifier with a specified number of classes.
+
+        Args:
+            num_classes (int): Number of output classes.
+        """
         super(ResNetClassifier, self).__init__()
         self.resnet = models.resnet18(weights='DEFAULT')
         in_features = self.resnet.fc.in_features
         self.resnet.fc = nn.Linear(in_features, num_classes)
 
     def forward(self, x):
+        """
+        Forward pass of the ResNet classifier.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor.
+        """
         x = self.resnet(x)
         return x
 class VAE(nn.Module):
     def __init__(self):
+        """
+        Initialize a Variational Autoencoder (VAE) model.
+        """
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(784, 400)
         self.fc21 = nn.Linear(400, 20)  
@@ -29,19 +47,50 @@ class VAE(nn.Module):
         self.fc4 = nn.Linear(400, 784)
 
     def encode(self, x):
+        """
+        Initialize a Variational Autoencoder (VAE) model.
+        """
         h1 = F.relu(self.fc1(x))
         return self.fc21(h1), self.fc22(h1)  
 
     def reparameterize(self, mu, logvar):
+        """
+        Reparameterization trick for VAE.
+
+        Args:
+            mu (torch.Tensor): Mean tensor.
+            logvar (torch.Tensor): Log variance tensor.
+
+        Returns:
+            torch.Tensor: Reparameterized tensor.
+        """
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
         return eps.mul(std).add(mu) 
 
     def decode(self, z):
+        """
+        Decode latent variable into the reconstructed input.
+
+        Args:
+            z (torch.Tensor): Latent variable tensor.
+
+        Returns:
+            torch.Tensor: Reconstructed output tensor.
+        """
         h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))  
 
     def forward(self, x):
+        """
+        Forward pass of the VAE.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            tuple: Tuple containing reconstructed output, mean, and log variance tensors.
+        """
         mu, logvar = self.encode(x.view(-1, 784))
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
@@ -49,6 +98,12 @@ class VAE(nn.Module):
 
 class Classifier_mnist(nn.Module):
     def __init__(self, num_classes=10):
+        """
+        Initialize a simple classifier for MNIST images.
+
+        Args:
+            num_classes (int): Number of output classes.
+        """
         super(Classifier_mnist, self).__init__()
         self.mod = nn.Sequential(
             nn.Conv2d(1, 6, 5, 1, padding="same"),
@@ -65,6 +120,15 @@ class Classifier_mnist(nn.Module):
         )
 
     def forward(self, x):
+        """
+        Forward pass of the MNIST classifier.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor.
+        """
         x = self.mod(x)
         x = x.view(x.size(0), -1)
         return self.mod2(x)
@@ -81,6 +145,15 @@ dict_eng = {0: "dog", 1: "horse",
 
 
 def classifie_animals10(image_path):
+    """
+    Classify an animal image into one of 10 classes using a pre-trained model.
+
+    Args:
+        image_path (str): Path to the input image.
+
+    Returns:
+        list: A list containing the predicted class label in French and English.
+    """
     model_chemin = os.path.join(current_app.root_path, 'models', 'classifierVF_animals10.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model.eval()
@@ -98,6 +171,15 @@ def classifie_animals10(image_path):
     return [dict[predicted_class], dict_eng[predicted_class]]
 
 def classifie_animals90(image_path):
+    """
+    Classify an animal image into one of 90 classes using a pre-trained model.
+
+    Args:
+        image_path (str): Path to the input image.
+
+    Returns:
+        list: A list containing the predicted class label in French and English.
+    """
     model_chemin = os.path.join(current_app.root_path, 'models', 'classifier_animals90.pt')
     model = torch.load(model_chemin, map_location='cpu')
     model.eval()
@@ -115,6 +197,15 @@ def classifie_animals90(image_path):
     return [animaux[predicted_class], animaux_eng[predicted_class]]
 ######
 def classifie_mnist(image__list_path):
+    """
+    Classify an number image into one of 10 classes using a pre-trained model.
+
+    Args:
+        image_path (str): Path to the input image.
+
+    Returns:
+        list: A list containing the predicted class label in French and English.
+    """
     model = Classifier_mnist()
     model_chemin = os.path.join('animalguessinggame', 'models', 'classifierVF_minst.pt')
     model = torch.load(model_chemin, map_location='cpu')
@@ -200,6 +291,15 @@ dix_vingt = {0: 'dix',
              9: 'dix neuf'}
             
 def concat(L):
+    """
+    Convert a list of integers to its French representation in words.
+
+    Args:
+        L (list): List of integers representing a number. The length of L should be 1, 2, 3, or 4.
+
+    Returns:
+        str: French representation of the input number in words.
+    """
     n = len(L)
     string = []
     if n == 4:
@@ -327,6 +427,15 @@ def concat(L):
     return rep[:-1]
 
 def concat_eng(L):
+    """
+    Convert a list of integers to its English representation in words.
+
+    Args:
+        L (list): List of integers representing a number. The length of L should be 1, 2, 3, or 4.
+
+    Returns:
+        str: English representation of the input number in words.
+    """
     n = len(L)
     string = []
     if n == 4:
