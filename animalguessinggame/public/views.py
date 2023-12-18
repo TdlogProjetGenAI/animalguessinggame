@@ -691,6 +691,10 @@ from wtforms import PasswordField, StringField, BooleanField, HiddenField, Submi
 
 class GenerateImageForm_cifar(FlaskForm):
     is_ia = SubmitField('IA')
+    username = StringField('Username') 
+    password = PasswordField('Password')  
+    prompt = StringField('Prompt')
+    submit = SubmitField('Soumettre')
 
 
 @blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
@@ -747,7 +751,7 @@ def replay_guessai_cifar():
 
 def get_random_image_cifar_ai():
     images_folder = os.path.join(current_app.root_path, 'static', 'cifar','FAKE')
-    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.JPEG'))]
 
     if image_files:
         random_image = random.choice(image_files)
@@ -757,7 +761,7 @@ def get_random_image_cifar_ai():
     
 def get_random_image_cifar_real():
     images_folder = os.path.join(current_app.root_path, 'static', 'cifar','REAL')
-    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    image_files = [f for f in os.listdir(images_folder) if f.endswith(('.png', '.jpg', '.JPEG'))]
 
     if image_files:
         random_image = random.choice(image_files)
