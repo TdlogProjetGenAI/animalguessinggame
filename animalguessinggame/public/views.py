@@ -320,51 +320,62 @@ def liste_animals90():
 
 #############Clock#####################
 
+@blueprint.route('/reset_score_hard_clock', methods=['GET'])
+def reset_score_hard_clock():
+    """
+    Resets the score when button "Réinitialiser Timer" is pressed
+    
+    Takes no argument
+    
+    Return a modification to the page generate_image_hard_clock
+    """
+    session['score_clock'] = 0
+    return redirect(url_for('public.generate_image_hard_clock'))
+
+
 @blueprint.route('/generate_image_hard_clock', methods=['GET', 'POST'])
+
+
 def generate_image_hard_clock():
+    
+    """
+    Generates an image for the game, keeps track of the score, generates a new image when ann answer is submitted
+
+    Returns:
+        A modification to the game page
+    """
     form = GenerateImageForm()
     image_path = session.get('current_image_hard_clock', get_random_image_hard_path())
     congratulations_message = None
-    attempts = session.get('attempts_hard_clock', 1)
     win = session.get('win_clock', False)
     played = session.get('played_clock', False)
-    score = session.get('score_clock', 0)
-    top_scores = ScoreHardClock.get_top_scores()
+    score_clock = session.get('score_clock', 0)
 
     session['current_image_hard_clock'] = image_path
-    if attempts > 0 and form.validate_on_submit():
+    if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
-            congratulations_message = "Félicitations, vous avez gagné !"
+            congratulations_message = "Bonne réponse !"
             win = True
 
-            score += 1
+            score_clock += 1
             played = True
 
             # Générer une nouvelle image ici
             session['current_image_hard_clock'] = get_random_image_hard_path()
 
         else:
-            attempts -= 1
-            if attempts == 0:
-                new_image_path = get_random_image_hard_path()
-                congratulations_message = f"Dommage. La réponse était {anws[0]}."
-                session['current_image_hard_clock'] = new_image_path
-            elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
-                congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
-                session['current_image_hard_clock'] = image_path
-            else:
-                congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
-                session['current_image_hard_clock'] = image_path
+            new_image_path = get_random_image_hard_path()
+            congratulations_message = f"Dommage. La réponse était {anws[0]}."
+            session['current_image_hard_clock'] = new_image_path
 
-    session['attempts_hard_clock'] = attempts
     session['win_clock'] = win
     session['played_clock'] = played
-    session['score_clock'] = score
+    session['score_clock'] = score_clock
 
     return render_template('public/image_page_hard_clock.html', image_path=session['current_image_hard_clock'],
-                           congratulations_message=congratulations_message, form=form, score=score)
+                           congratulations_message=congratulations_message, form=form, score_clock=score_clock)
 
 
 
@@ -372,6 +383,13 @@ def generate_image_hard_clock():
 
 @blueprint.route('/replay_hard_clock', methods=['GET'])
 def replay_hard_clock():
+    
+    """
+    Updates the image when the "Changer d'image" button is pressed
+
+    Returns:
+        _type_: _description_
+    """
     session.pop('current_image_hard_clock', None)
     win = session.get('win_clock', False)
     if not win:
@@ -381,7 +399,6 @@ def replay_hard_clock():
         new_score.save()
         session['score_clock'] = 0
 
-    session['attempts_hard_clock'] = 3
     session['current_image_hard_clock'] = get_random_image_path()
     session['win_clock'] = False  # Réinitialisez la variable win à False
     session['played_clock'] = False
