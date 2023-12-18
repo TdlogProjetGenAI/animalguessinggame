@@ -23,11 +23,11 @@
                                 {{ form.prompt(class="form-control", placeholder="Saisissez votre réponse ici", required=True) }}
                             </div>
                             <button type="submit" class="btn btn-primary" id="submitBtn">Soumettre</button>
-                            <h3 class="mt-3">Score actuel: <span id="score">{{ score }}</span></h3>
+                            <h3 class="mt-3">Score actuel: <span id="score">{{ score_clock }}</span></h3>
                         </form>
                     {% endif %}
-                    <a href="{{ url_for('public.replay_hard_clock') }}" class="btn btn-secondary mt-3" id="replayBtn">Rejouer</a>
-                    <button class="btn btn-warning mt-3" id="resetBtn">Réinitialiser</button>
+                    <a href="{{ url_for('public.replay_hard_clock') }}" class="btn btn-secondary mt-3" id="replayBtn">Changer d'image</a>
+                    <a href="{{ url_for('public.reset_score_hard_clock') }}" class="btn btn-warning mt-3" id="resetBtn">Réinitialiser Timer</a>
                 </div>
             </div>
         </div>

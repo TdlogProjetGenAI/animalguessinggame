@@ -12,6 +12,7 @@ from flask import (
 )
 import random
 
+#import pretty_midi
 from scipy.io import wavfile
 import IPython
 
@@ -28,16 +29,17 @@ from animalguessinggame.user.forms import RegisterForm
 from animalguessinggame.user.models import User
 from animalguessinggame.utils import flash_errors
 from animalguessinggame.database import Score, ScoreHard,ScoreHardClock, ScoreNum
-
+#from animalguessinggame.app import db
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from PIL import Image
 import torch
+import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 from flask import current_app
-
+#from pydub import AudioSegment
 from flask import redirect, url_for, render_template
 from flask import jsonify
 from flask import render_template, request
@@ -93,6 +95,7 @@ def home():
     """Home page."""
     form = LoginForm(request.form)
     current_app.logger.info("Hello from the home page!")
+    # Handle logging in
     if request.method == "POST":
         if form.validate_on_submit():
             login_user(form.user)
@@ -140,7 +143,10 @@ def about():
 
 
 ##animals10
+# Ajoutez cette importation à votre fichier Python
+from flask import session
 
+# ...
 
 @blueprint.route('/generate_image/', methods=['GET', 'POST'])
 def generate_image():
@@ -154,20 +160,20 @@ def generate_image():
     top_scores = Score.get_top_scores()
     sound_file = 'sound_animals10/chat.mp3'
     play_win_sound = True
-    if attempts > 0 and form.validate_on_submit():
+    if attempts>0 and form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals10(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
             win = True
             play_win_sound = True
-            sound_file = f'sound_animals10/{anws[0]}.mp3'         
+            sound_file=f'sound_animals10/{anws[0]}.mp3'         
             if attempts == 3 and not played:
-                score += 8
+                score+=8
             elif attempts == 2 and not played:
-                score += 5
+                score+=5
             elif attempts == 1 and not played:
-                score += 3
+                score+=3
             played = True
         else:
             attempts -= 1
@@ -176,12 +182,12 @@ def generate_image():
                 user_id = current_user.id if current_user.is_authenticated else "invite"
                 new_score = Score(user_id=user_id, score_value=score)
                 new_score.save()
-                score = 0
-                played = True
+                score=0
+                played=True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
                 play_win_sound = True
-                sound_file = f'sound_animals10/tu_chauffes.mp3'
+                sound_file=f'sound_animals10/tu_chauffes.mp3'
             else:
                 congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
                 play_win_sound = True
@@ -201,6 +207,7 @@ def replay():
 
     win = session.get('win', False)
     if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
         new_score = Score(user_id=user_id, score_value=session['score'])
         new_score.save()
@@ -209,7 +216,7 @@ def replay():
 
     session['attempts'] = 3
     session['current_image'] = get_random_image_path()
-    session['win'] = False  
+    session['win'] = False  # Réinitialisez la variable win à False
     session['played'] = False
     return redirect(url_for('public.generate_image'))
 
@@ -282,6 +289,7 @@ def replay_hard():
     session.pop('current_image_hard', None)
     win = session.get('win', False)
     if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
         new_score = ScoreHard(user_id=user_id, score_value=session['score'])
         new_score.save()
@@ -290,7 +298,7 @@ def replay_hard():
 
     session['attempts_hard'] = 3
     session['current_image'] = get_random_image_path()
-    session['win'] = False  
+    session['win'] = False  # Réinitialisez la variable win à False
     session['played'] = False
     return redirect(url_for('public.generate_image_hard'))
 
@@ -312,58 +320,87 @@ def liste_animals90():
 
 #############Clock#####################
 
-@blueprint.route('/generate_image_hard_clock', methods=['GET','POST'])
+@blueprint.route('/reset_score_hard_clock', methods=['GET'])
+def reset_score_hard_clock():
+    """
+    Resets the score when button "Réinitialiser Timer" is pressed
+    
+    Takes no argument
+    
+    Return a modification to the page generate_image_hard_clock
+    """
+    session['score_clock'] = 0
+    return redirect(url_for('public.generate_image_hard_clock'))
+
+
+@blueprint.route('/generate_image_hard_clock', methods=['GET', 'POST'])
+
+
 def generate_image_hard_clock():
+    
+    """
+    Generates an image for the game, keeps track of the score, generates a new image when ann answer is submitted
+
+    Returns:
+        A modification to the game page
+    """
     form = GenerateImageForm()
     image_path = session.get('current_image_hard_clock', get_random_image_hard_path())
     congratulations_message = None
-    attempts = session.get('attempts_hard_clock', 1)
     win = session.get('win_clock', False)
     played = session.get('played_clock', False)
-    score = session.get('score_clock', 0)
-    top_scores = ScoreHardClock.get_top_scores()
+    score_clock = session.get('score_clock', 0)
 
-    if attempts>0 and form.validate_on_submit():
+    session['current_image_hard_clock'] = image_path
+    if form.validate_on_submit():
         prompt_value = form.prompt.data.lower()
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
-            congratulations_message = "Félicitations, vous avez gagné !"
+            congratulations_message = "Bonne réponse !"
             win = True
-            
-            score += 1
+
+            score_clock += 1
             played = True
 
+            # Générer une nouvelle image ici
+            session['current_image_hard_clock'] = get_random_image_hard_path()
+
         else:
-            attempts -= 1
-            if attempts == 0:
-                congratulations_message = f"Dommage. La réponse était {anws[0]}."
-            elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
-                congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
-            else:
-                congratulations_message = f"Essaie encore ! Il vous reste {attempts} essais."
-    session['attempts_hard_clock'] = attempts
-    session['current_image_hard_clock'] = image_path
+            new_image_path = get_random_image_hard_path()
+            congratulations_message = f"Dommage. La réponse était {anws[0]}."
+            session['current_image_hard_clock'] = new_image_path
+
     session['win_clock'] = win
     session['played_clock'] = played
-    session['score_clock'] = score
-    return render_template('public/image_page_hard_clock.html', image_path=image_path, congratulations_message=congratulations_message, form=form, score = score)
+    session['score_clock'] = score_clock
+
+    return render_template('public/image_page_hard_clock.html', image_path=session['current_image_hard_clock'],
+                           congratulations_message=congratulations_message, form=form, score_clock=score_clock)
+
 
 
 
 
 @blueprint.route('/replay_hard_clock', methods=['GET'])
 def replay_hard_clock():
+    
+    """
+    Updates the image when the "Changer d'image" button is pressed
+
+    Returns:
+        _type_: _description_
+    """
     session.pop('current_image_hard_clock', None)
     win = session.get('win_clock', False)
     if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
         new_score = ScoreHardClock(user_id=user_id, score_value=session['score_clock'])
         new_score.save()
         session['score_clock'] = 0
 
-    session['attempts_hard_clock'] = 3
-    session['current_image_clock'] = get_random_image_path()
-    session['win_clock'] = False  
+    session['current_image_hard_clock'] = get_random_image_path()
+    session['win_clock'] = False  # Réinitialisez la variable win à False
     session['played_clock'] = False
     return redirect(url_for('public.generate_image_hard_clock'))
 
@@ -450,12 +487,13 @@ def replay_number():
     session.pop('current_images', None)
     win = session['win']
     if not win:
+        # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
         new_score = ScoreNum(user_id=user_id, score_value=session['score'])
         new_score.save()
         top_scores = ScoreNum.get_top_scores()
         session['score'] = 0
-    session['win'] = False 
+    session['win'] = False  # Réinitialisez la variable win à False
     session['played'] = False
     return redirect(url_for('public.generate_number'))
 
@@ -635,32 +673,70 @@ def upload_images_number():
 
 
 
-from flask import render_template, session, redirect, url_for
-from .forms import GenerateImageForm2
-import random
-
 @blueprint.route('/guessai/', methods=['GET', 'POST'])
 def guessai():
-    form = GenerateImageForm_cifar()
-
-    AI = session.get('AI')
-    if AI is None:
-        AI = random.choice([True, False])
-        session['AI'] = AI
-
-    image_path = session.get('current_image_guessai')
-    if image_path is None:
-        image_path = gen_number_path() if AI else number_path()
-        session['current_image_guessai'] = image_path
+    form = GenerateImageForm2()
+   # played = session.get('played', False)
+    if random.choice([True, False]):
+        AI = session.get('AI', True)
+        image_path = session.get('current_image_guessai', gen_number_path())
+    else:
+        AI = session.get('AI', False)
+        image_path = session.get('current_image_guessai', number_path())
 
     congratulations_message = None
 
     if form.validate_on_submit():
-        is_ia = form.is_ia.data  
+
+        is_ia = form.is_ia
+        if AI:
+            if is_ia:
+                congratulations_message = "Félicitations ! L'image a été générée par notre IA" #elle
+            else:
+                congratulations_message = "Perdu ! L'image a été générée par notre IA" 
+        else:
+            if is_ia:
+                congratulations_message = "Perdu ! L'image n'a pas été générée par notre IA" #elle
+            else:
+                congratulations_message = "Félicitations ! L'image n'a pas été générée par notre IA"
+#        congratulations_message = "boucle2"
+
+    session['current_image_guessai'] = image_path
+    return render_template('public/guessai.html', image_path=image_path, congratulations_message=congratulations_message, form=form)
+
+
+@blueprint.route('/replay_new_game/', methods=['GET'])
+def replay_guessai():
+
+    session.pop('image_guessai', None)
+    if random.choice([True, False]):
+        session['AI'] = True
+        session['current_image_guessai'] = gen_number_path()
+    else:
+        session['AI'] = False
+        session['current_image_guessai'] = number_path()
+    return redirect(url_for('public.guessai'))
+
+
+@blueprint.route('/guessai_cifar/', methods=['GET', 'POST'])
+def guessai_cifar():
+    form = GenerateImageForm2()
+    played = session.get('played_cifar', False)
+    if random.choice([True, False]):
+        AI = True
+        image_path = session.get('current_image_cifar', gen_number_path())
+    else:
+        AI = False
+        image_path = session.get('current_image_cifar', number_path())
+
+    congratulations_message = None
+
+    if form.validate_on_submit() and not played:
+        is_ia = form.ia.data
 
         if AI:
             if is_ia:
-                congratulations_message = "Félicitations ! L'image a été générée par notre IA"
+                congratulations_message = "Félicitations, vous avez gagné ! L'image a été générée par notre IA"
             else:
                 congratulations_message = "Perdu ! L'image a été générée par notre IA"
         else:
@@ -732,22 +808,16 @@ def guessai_cifar():
 
 @blueprint.route('/replay_new_game_cifar/', methods=['GET'])
 def replay_guessai_cifar():
-    AI = random.choice([True, False])
-    session['AI_cifar'] = AI
-
-    if AI:
-        session['current_image_cifar'] = get_random_image_cifar_ai()
+    if random.choice([True,False]):
+        session['AI_cifar']=True
+        session['current_image_cifar']=get_random_image_cifar_ai()
     else:
-        session['current_image_cifar'] = get_random_image_cifar_real()
-
-    session.pop('ground_truth_cifar', None)
+        session['AI_cifar']=False
+        session['current_image_cifar']=get_random_image_cifar_real()    
+    session.pop('current_image_cifar',None)
+    
 
     return redirect(url_for('public.guessai_cifar'))
-
-
-
-
-
 
 def get_random_image_cifar_ai():
     images_folder = os.path.join(current_app.root_path, 'static', 'cifar','FAKE')
