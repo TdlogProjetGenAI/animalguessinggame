@@ -391,8 +391,6 @@ def generate_image_hard_clock():
 
             score_clock += 1
             played = True
-
-            # Générer une nouvelle image ici
             session['current_image_hard_clock'] = get_random_image_hard_path()
 
         else:

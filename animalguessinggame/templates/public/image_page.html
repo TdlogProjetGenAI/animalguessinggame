@@ -1,7 +1,12 @@
 <!-- image_page.html -->
 {% extends "layout.html" %}
 {% block content %}
-
+<style>
+    body {
+        background: url('{{ url_for('static', filename='/images_home/fond_jeu5.jpg') }}') no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
