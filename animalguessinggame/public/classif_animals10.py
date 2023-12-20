@@ -7,8 +7,6 @@ import os
 from flask import current_app
 
 
-
-
 class ResNetClassifier(nn.Module):
     def __init__(self, num_classes=10):
         """
@@ -245,11 +243,12 @@ animaux_liste = [
     'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
     'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
     'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
-    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 'papillon de nuit',
-    'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 'panda', 'perroquet', 'pélican',
-    'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 'rat', 'renne', 'rhinocéros', 'bécasse',
-    'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 'calmar', 'écureuil', 'étoile de mer', 'cygne',
-    'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
+    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 
+    'papillon de nuit', 'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 
+    'panda', 'perroquet', 'pélican', 'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 
+    'rat', 'renne', 'rhinocéros', 'bécasse', 'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 
+    'calmar', 'écureuil', 'étoile de mer', 'cygne', 'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 
+    'pic-vert', 'zèbre'
 ]
 
 animaux = {i: animal for i, animal in enumerate(animaux_liste)}
@@ -289,7 +288,8 @@ dix_vingt = {0: 'dix',
              7: 'dix sept',
              8: 'dix huit',
              9: 'dix neuf'}
-            
+
+# flake8: noqa:C901    
 def concat(L):
     """
     Convert a list of integers to its French representation in words.
@@ -305,18 +305,18 @@ def concat(L):
     if n == 4:
         if L == [0, 0, 0, 0]:
             return 'zéro'
-        ##gestion des millierss
+        # gestion des millierss
         if L[0] != 0:
             string.append(chiffre[L[0]]+' mille')
-        ##gestion des centaines
+        # gestion des centaines
         if L[1] != 0 and L[1] != 1:
             if L[2] == 0 and L[3] == 0:
-                string.append(chiffre[L[1]]+" "+'cents')
+                string.append(chiffre[L[1]] + " " +'cents')
             else:
-                string.append(chiffre[L[1]]+ " " +'cent')
+                string.append(chiffre[L[1]] + " " + 'cent')
         if L[1] == 1:
             string.append('cent')
-        ##gestion des dizaines et unités
+        # gestion des dizaines et unités
         if L[2] != 7 and L[2] != 9 and L[2] != 0 and L[2] != 1:
             if L[2] != 8:
                 string.append(dizaine[L[2]])
@@ -341,22 +341,22 @@ def concat(L):
         # cas des dizaines egales à 1 
         if L[2] == 1:
             string.append(dix_vingt[L[3]])
-        #cas des dizaines nulles
+        # cas des dizaines nulles
         if L[2] == 0:
             if L[3] != 0:
                 string.append(chiffre[L[3]])
     if n == 3:
-        if L == [0,0,0]:
+        if L == [0, 0, 0]:
             return 'zéro'
-        #gestion des centaines
+        # gestion des centaines
         if L[0] != 0 and L[0] != 1:
             if L[1] == 0 and L[2] == 0:
                 string.append(chiffre[L[0]]+" "+'cents')
             else:
-                string.append(chiffre[L[0]]+" " +"cent")
+                string.append(chiffre[L[0]]+" " + "cent")
         if L[0] == 1:
             string.append('cent')
-        #gestion des dizaines et unités
+        # gestion des dizaines et unités
         if L[1] != 7 and L[1] != 9 and L[1] != 0 and L[1] != 1:
             if L[1] != 8:
                 string.append(dizaine[L[1]])
@@ -381,14 +381,14 @@ def concat(L):
         # cas des dizaines egales à 1 
         if L[1] == 1:
             string.append(dix_vingt[L[2]])
-        #cas des dizaines nulles
+        # cas des dizaines nulles
         if L[1] == 0:
             if L[2] != 0:
                 string.append(chiffre[L[2]])
     if n == 2:
         if L == [0, 0]:
             return 'zéro'
-    #gestion des dizaines et unités
+    # gestion des dizaines et unités
         if L[0] != 7 and L[0] != 9 and L[0] != 0 and L[0] != 1:
             if L[0] != 8:
                 string.append(dizaine[L[0]])
@@ -413,7 +413,7 @@ def concat(L):
         # cas des dizaines egales à 1 
         if L[0] == 1:
             string.append(dix_vingt[L[1]])
-        #cas des dizaines nulles
+        # cas des dizaines nulles
         if L[0] == 0:
             if L[1] != 0:
                 string.append(chiffre[L[1]])

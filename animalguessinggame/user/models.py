@@ -9,7 +9,6 @@ from animalguessinggame.database import Column, PkModel, db, reference_col, rela
 from animalguessinggame.extensions import bcrypt
 
 
-
 class Role(PkModel):
     """A role for a user."""
 

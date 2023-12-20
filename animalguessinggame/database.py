@@ -114,7 +114,7 @@ class ScoreHard(db.Model):
         """Récupère les meilleurs scores pour le deuxième jeu."""
         return ScoreHard.query.order_by(ScoreHard.score_value.desc()).limit(limit).all()
     
-####### Score Clock #########
+# ###### Score Clock #########
 class ScoreHardClock(db.Model):
     """Model for storing scores for the second game."""
     __tablename__ = 'scores_hard_clock'

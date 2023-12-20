@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Public forms."""
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, BooleanField, HiddenField, SubmitField
-from wtforms.validators import DataRequired, ValidationError
-
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import DataRequired
 from animalguessinggame.user.models import User
 
 
