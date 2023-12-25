@@ -2,28 +2,68 @@
 {% block content %}
 
 <style>
+    body {
+        background-size: cover;
+        background-color: #f8f9fa; /* Ajout d'une couleur de fond */
+        color: #343a40; /* Couleur du texte */
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
     .image-container {
         display: flex;
-        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
     }
 
     .generated-image {
-        width: 128px;
-        height: 128px;
-        margin: 0px;
+        width: 200px;
+        height: 200px;
+        object-fit: cover; /* Ajustement de la propriété object-fit */
+        border-radius: 10px; /* Ajout de coins arrondis */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Ajout d'une ombre */
     }
 
-    .score-table {
+    .btn-container {
         margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
     }
-    
-    body {
-        background: url('/static/images_home/fond5.jpg');
-        background-size: cover; 
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 10px 20px;
+        font-size: 1em;
+        border-radius: 5px; /* Ajout de coins arrondis */
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover,
+    .btn-secondary:hover {
+        background-color: #007bff; /* Changement de couleur au survol */
+    }
+
+    #congratulations-message {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #28a745; /* Couleur de fond pour le message de félicitations */
+        color: #fff; /* Couleur du texte pour le message de félicitations */
     }
 </style>
-
-<div class="container mt-5">
+<script>
+    document.addEventListener("keydown", function(event) {
+        if (event.ctrlKey && event.key === "Enter") {
+            event.preventDefault();
+            window.location.href = "{{ url_for('public.replay_guessai') }}";
+        }
+    });
+</script>
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             {% if congratulations_message %}
@@ -37,12 +77,14 @@
                     alt="Generated Image">
             </div>
 
-            <form id="generateForm_cifar" action="{{ url_for('public.guessai') }}" method="post">
-                {{ form.hidden_tag() }}
-                <button type="submit" name="is_ia" value="true" class="btn btn-primary">IA</button>
-                <button type="submit" name="is_ia" value="false" class="btn btn-primary">Non IA</button>
-                <a href="{{ url_for('public.replay_guessai') }}" class="btn btn-secondary mt-3">Rejouer</a>
-            </form>
+            <div class="btn-container">
+                <form id="generateForm_cifar" action="{{ url_for('public.guessai') }}" method="post">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" name="is_ia" value="true" class="btn btn-primary">IA</button>
+                    <button type="submit" name="is_ia" value="false" class="btn btn-primary">Non IA</button>
+                </form>
+                <a href="{{ url_for('public.replay_guessai') }}" class="btn btn-secondary">Rejouer</a>
+            </div>
         </div>
     </div>
 </div>

@@ -312,17 +312,18 @@ def liste_animals90():
     Returns:
         flask.render_template: HTML page showing the list of 90 animals and the current score.
     """
+
     animals90 = [
-        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'bœuf', 'calamar', 
-        'calao', 'canard', 'cafard', 'cerf', 'chat', 'chauve-souris', 'cheval', 'chenille', 'chimpanzé', 
-        'chien', 'cochon', 'colibri', 'coq', 'corbeau', 'coyote', 'crapaud', 'crabe', 'cygne', 'dauphin',
-        'dinosaure', 'dindon', 'éléphant', 'écureuil', 'étoile de mer', 'flamant rose', 'fourmi', 'gorille', 
-        'hamster', 'hérisson', 'hippocampe', 'hibou', 'homard', 'hyène', 'kangourou', 'koala', 'léopard', 
-        'lézard', 'lion', 'loup', 'loutre', 'méduse', 'moineau', 'moustique', 'mouche', 'mouton', 'octopus', 
-        'okapi', 'oie', 'opossum', 'orque', 'ours', 'panda', 'papillon', 'papillon de nuit', 'paon', 'perroquet', 
-        'phoque', 'pigeon', 'pingouin', 'pieuvre', 'poisson rouge', 'porc-épic', 'rat', 'raton laveur', 'renard',
-        'renne', 'requin', 'rhinocéros', 'sanglier', 'sauterelle', 'scarabée', 'serpent', 'souris', 'tigre', 
-        'tortue', 'vache', 'wombat', 'zèbre'
+        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'bœuf', 
+        'calao', 'canard', 'cerf', 'chauve-souris', 'chat', 'chèvre', 'chenille', 'cheval', 'chien', 'chimpanzé',
+        'chouette', 'cochon', 'coyote', 'crapaud', 'crabe', 'coccinelle', 'cygne', 'dauphin', 'dinde', 'écureuil',
+        'éléphant', 'étoile de mer', 'flamant rose', 'fourmi', 'gazelle', 'girafe', 'gorille', 'guépard', 'guêpe',
+        'hamster', 'hérisson', 'hippopotame', 'hirondelle', 'huître', 'hyène', 'kangourou', 'koala',
+        'léopard', 'lion', 'loup', 'loutre', 'méduse', 'mille-pattes', 'mouche', 'mouton', 'moineau', 'moustique',
+        'mule', 'opossum', 'orang-outan', 'oie', 'okapi', 'ours', 'panda', 'papillon', 'papillon de nuit', 'perroquet',
+        'phoque', 'pic-vert', 'pigeon', 'pingouin', 'poisson rouge', 'porc-épic', 'ragondin', 'rat', 'raton laveur', 
+        'renard', 'renne', 'requin', 'salamandre', 'sanglier', 'scarabée', 'serpent', 'souris', 'sauterelle', 'singe', 
+        'tigre', 'tortue', 'vache', 'wombat', 'zèbre'
     ]
     animals90_dict = {i: animal for i, animal in enumerate(animals90)}
     return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
@@ -858,10 +859,10 @@ def guessai_hard():
         AI = random.choice([True, False])
         session['AI_hard'] = AI
 
-    image_path = session.get('current_image_hard')
+    image_path = session.get('current_image_guess_hard')
     if image_path is None:
         image_path = get_random_image_hard_ai() if AI else get_random_image_hard_real()
-        session['current_image_hard'] = image_path
+        session['current_image_guess_hard'] = image_path
 
     congratulations_message = None
 
@@ -878,7 +879,7 @@ def guessai_hard():
         else:
             congratulations_message = "Perdu ! C'était de l'IA." if ground_truth else "Perdu ! Ce n'était pas de l'IA."
 
-        session.pop('current_image_hard', None)
+        session.pop('current_image_guess_hard', None)
 
     return render_template('public/guessai_hard.html', image_path=image_path, 
                            congratulations_message=congratulations_message, form=form)
@@ -889,9 +890,9 @@ def replay_guessai_hard():
     session['AI_hard'] = AI
 
     if AI:
-        session['current_image_hard'] = get_random_image_hard_ai()
+        session['current_image_guess_hard'] = get_random_image_hard_ai()
     else:
-        session['current_image_hard'] = get_random_image_hard_real()
+        session['current_image_guess_hard'] = get_random_image_hard_real()
 
     session.pop('ground_truth_hard', None)
 
