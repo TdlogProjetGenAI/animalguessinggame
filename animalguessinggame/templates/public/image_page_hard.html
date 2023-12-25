@@ -81,6 +81,19 @@
         }
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('generateForm');
+        var promptField = document.getElementById('prompt');
+
+        if (form && promptField) {
+            form.addEventListener('submit', function() {
+                // Efface le contenu du champ de saisie après la soumission du formulaire
+                promptField.value = '';
+            });
+        }
+    });
+</script>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
