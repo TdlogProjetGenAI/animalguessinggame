@@ -26,6 +26,8 @@ jobs:
       - name: Run Node lints
         run: npm run lint
       - name: Run Python lints
-        run: flask lint --check
+        run: |
+         flask lint  # Assuming you have a linting command defined in your Flask app
+         flake8 .
       - name: Run Python tests
         run: flask test
