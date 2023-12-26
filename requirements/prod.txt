@@ -38,3 +38,7 @@ Flask-DebugToolbar==0.13.1
 
 # Environment variable parsing
 environs==9.5.0
+
+
+Pillow>=8.4.0
+flake8>=4.0.1
