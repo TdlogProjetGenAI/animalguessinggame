@@ -244,7 +244,7 @@ animaux_liste = [
     'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
     'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
     'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique', 
-    'papillon de nuit', 'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 
+    'papillon de nuit', 'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'boeuf', 'huître', 
     'panda', 'perroquet', 'pélican', 'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 
     'rat', 'renne', 'rhinocéros', 'bécasse', 'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 
     'calamar', 'écureuil', 'étoile de mer', 'cygne', 'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 

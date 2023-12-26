@@ -314,7 +314,7 @@ def liste_animals90():
     """
 
     animals90 = [
-        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'bœuf', 
+        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'boeuf', 
         'calao', 'canard', 'cerf', 'chauve-souris', 'chat', 'chèvre', 'chenille', 'cheval', 'chien', 'chimpanzé',
         'chouette', 'cochon', 'coyote', 'crapaud', 'crabe', 'coccinelle', 'cygne', 'dauphin', 'dinde', 'écureuil',
         'éléphant', 'étoile de mer', 'flamant rose', 'fourmi', 'gazelle', 'girafe', 'gorille', 'guépard', 'guêpe',
