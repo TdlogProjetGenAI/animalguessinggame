@@ -38,7 +38,21 @@ class LoginForm(FlaskForm):
         return True
 
 
-class GenerateImageForm_IA(FlaskForm):
+class GenerateImageFormIA(FlaskForm):
+    """
+    A form class for generating images and handling prompt for the AI or not AI games.
+
+    Attributes:
+    - is_ia (SubmitField): Submit field for triggering the use of IA.
+    - username (StringField): Field for entering the username.
+    - password (PasswordField): Field for entering the password.
+    - prompt (StringField): Field for entering the image generation prompt.
+    - submit (SubmitField): Submit field for submitting the form.
+
+    Inherit from FlaskForm.
+
+    """
+
     is_ia = SubmitField('IA')
     username = StringField('Username') 
     password = PasswordField('Password')  
@@ -46,6 +60,18 @@ class GenerateImageForm_IA(FlaskForm):
     submit = SubmitField('Soumettre')
 
 class GenerateImageForm(FlaskForm):
+    """
+    A generic form class for generating images and handling prompt for the guessing games.
+
+    Attributes:
+    - username (StringField): Field for entering the username.
+    - password (PasswordField): Field for entering the password.
+    - prompt (StringField): Field for entering the image generation prompt.
+    - submit (SubmitField): Submit field for submitting the form.
+
+    Inherit from FlaskForm.
+    """
+
     username = StringField('Username') 
     password = PasswordField('Password')  
     prompt = StringField('Prompt')

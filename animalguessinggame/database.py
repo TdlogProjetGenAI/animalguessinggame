@@ -69,9 +69,15 @@ class PkModel(Model):
         return None
 
 class Score(db.Model):
-    """Model for storing user scores."""
-    __tablename__ = 'scores'
+    """
+    Model for storing user scores.
 
+    Attributes:
+    - id (int): Primary key for the score.
+    - user_id (int): Foreign key referencing the user.
+    - score_value (int): The value of the user's score.
+    """
+    __tablename__ = 'scores'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     score_value = db.Column(db.Integer)
@@ -79,20 +85,46 @@ class Score(db.Model):
     user = db.relationship('User', backref='scores', lazy=True)
 
     def __init__(self, user_id, score_value):
+        """
+        Initialize a new score.
+
+        Parameters:
+        - user_id (int): The user's ID.
+        - score_value (int): The value of the user's score.
+        """
         self.user_id = user_id
         self.score_value = score_value
 
     def save(self):
+        """
+        Save the score to the database.
+        """
         db.session.add(self)
         db.session.commit()
         
     @staticmethod
     def get_top_scores(limit=10):
-        """Récupère les meilleurs scores."""
+        """
+        Retrieve the top scores.
+
+        Parameters:
+        - limit (int): The maximum number of scores to retrieve (default is 10).
+
+        Returns:
+        - list of Score: A list of Score objects representing the top scores, ordered by score value in descending 
+        order.
+        """
         return Score.query.order_by(Score.score_value.desc()).limit(limit).all()
 
 class ScoreHard(db.Model):
-    """Model for storing scores for the second game."""
+    """
+    Model for storing user scores.
+
+    Attributes:
+    - id (int): Primary key for the score.
+    - user_id (int): Foreign key referencing the user.
+    - score_value (int): The value of the user's score.
+    """
     __tablename__ = 'scores_hard'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -102,21 +134,47 @@ class ScoreHard(db.Model):
     user = db.relationship('User', backref='scores_hard', lazy=True)
 
     def __init__(self, user_id, score_value):
+        """
+        Initialize a new score.
+
+        Parameters:
+        - user_id (int): The user's ID.
+        - score_value (int): The value of the user's score.
+        """
         self.user_id = user_id
         self.score_value = score_value
 
     def save(self):
+        """
+        Save the score to the database.
+        """
         db.session.add(self)
         db.session.commit()
 
     @staticmethod
     def get_top_scores(limit=10):
-        """Récupère les meilleurs scores pour le deuxième jeu."""
+        """
+        Retrieve the top scores.
+
+        Parameters:
+        - limit (int): The maximum number of scores to retrieve (default is 10).
+
+        Returns:
+        - list of Score: A list of Score objects representing the top scores, ordered by score value in descending 
+        order.
+        """
         return ScoreHard.query.order_by(ScoreHard.score_value.desc()).limit(limit).all()
     
 # ###### Score Clock #########
 class ScoreHardClock(db.Model):
-    """Model for storing scores for the second game."""
+    """
+    Model for storing user scores.
+
+    Attributes:
+    - id (int): Primary key for the score.
+    - user_id (int): Foreign key referencing the user.
+    - score_value (int): The value of the user's score.
+    """
     __tablename__ = 'scores_hard_clock'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -126,20 +184,46 @@ class ScoreHardClock(db.Model):
     user = db.relationship('User', backref='scores_hard_clock', lazy=True)
 
     def __init__(self, user_id, score_value):
+        """
+        Initialize a new score.
+
+        Parameters:
+        - user_id (int): The user's ID.
+        - score_value (int): The value of the user's score.
+        """
         self.user_id = user_id
         self.score_value = score_value
 
     def save(self):
+        """
+        Save the score to the database.
+        """
         db.session.add(self)
         db.session.commit()
 
     @staticmethod
     def get_top_scores(limit=10):
-        """Récupère les meilleurs scores pour le deuxième jeu."""
+        """
+        Retrieve the top scores.
+
+        Parameters:
+        - limit (int): The maximum number of scores to retrieve (default is 10).
+
+        Returns:
+        - list of Score: A list of Score objects representing the top scores, ordered by score value in descending 
+        order.
+        """
         return ScoreHardClock.query.order_by(ScoreHardClock.score_value.desc()).limit(limit).all()    
 
 class ScoreNum(db.Model):
-    """Model for storing scores for the 3rd game."""
+    """
+    Model for storing user scores.
+
+    Attributes:
+    - id (int): Primary key for the score.
+    - user_id (int): Foreign key referencing the user.
+    - score_value (int): The value of the user's score.
+    """
     __tablename__ = 'scores_num'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -149,16 +233,35 @@ class ScoreNum(db.Model):
     user = db.relationship('User', backref='scores_num', lazy=True)
 
     def __init__(self, user_id, score_value):
+        """
+        Initialize a new score.
+
+        Parameters:
+        - user_id (int): The user's ID.
+        - score_value (int): The value of the user's score.
+        """
         self.user_id = user_id
         self.score_value = score_value
 
     def save(self):
+        """
+        Save the score to the database.
+        """
         db.session.add(self)
         db.session.commit()
 
     @staticmethod
     def get_top_scores(limit=10):
-        """Récupère les meilleurs scores pour le troisieme jeu."""
+        """
+        Retrieve the top scores.
+
+        Parameters:
+        - limit (int): The maximum number of scores to retrieve (default is 10).
+
+        Returns:
+        - list of Score: A list of Score objects representing the top scores, ordered by score value in descending 
+        order.
+        """
         return ScoreNum.query.order_by(ScoreNum.score_value.desc()).limit(limit).all()
 
 def reference_col(

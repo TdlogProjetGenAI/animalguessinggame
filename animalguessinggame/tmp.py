@@ -1,9 +1,13 @@
+
+"""
+Module for creating a connection to a SQLite database.
+"""
+
 import sqlite3
 from sqlite3 import Error
 
-
 def create_connection(db_file):
-    """ create a database connection to a SQLite database """
+    """ Create a database connection to a SQLite database. """
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -17,5 +21,5 @@ def create_connection(db_file):
 
 if __name__ == '__main__':
     print('debug')
-    
+
     create_connection(r"pythonsqlite.db")

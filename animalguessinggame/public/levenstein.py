@@ -1,3 +1,11 @@
+"""
+Module for Levenshtein distance calculation.
+
+This module provides a function, distance_levenstein, to calculate the Levenshtein
+distance between two strings.
+It will be very useful to see if the player is close to the good answer, and so tell him that
+he need to search around his previous answer. Maybe it was just a spelling mistake.
+"""
 def distance_levenstein(s1, s2):
     """
     Calculate the Levenshtein distance between two strings.
