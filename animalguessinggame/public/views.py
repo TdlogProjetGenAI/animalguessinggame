@@ -194,7 +194,7 @@ def generate_image():
     return render_template('public/image_page.html', image_path=image_path,
                            congratulations_message=congratulations_message, form=form, score=score,
                            top_scores=top_scores, play_win_sound=play_win_sound, sound_file=sound_file
-                           )
+                           )  # noqua
 
 
 @blueprint.route('/replay/', methods=['GET'])
