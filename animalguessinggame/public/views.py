@@ -32,8 +32,8 @@ blueprint = Blueprint("public", __name__, static_folder="../static")
 
 class Compt():
     """
-    A simple class representing a global counter which will be used for the storage of generated number in order 
-    to avoid the storage of all the data generated but just the useful one. 
+    A simple class representing a global counter which will be used for the storage of generated number in order
+    to avoid the storage of all the data generated but just the useful one.
 
     Attributes:
     - k (int): The current value of the counter.
@@ -45,15 +45,11 @@ class Compt():
     """
 
     def __init__(self):
-        """
-        Initialize the counter with a value of 0.
-        """
+        """ Initialize the counter with a value of 0. """
         self.k = 0
 
     def incr(self):
-        """
-        Increment the counter by 1.
-        """
+        """ Increment the counter by 1. """
         self.k += 1
 
     def value(self):
@@ -66,9 +62,7 @@ class Compt():
         return self.k
 
     def value_to_zero(self):
-        """
-        Reset the counter to zero.
-        """
+        """ Reset the counter to zero. """
         self.k = 0
 
 
@@ -253,7 +247,7 @@ def top_scores():
 def generate_image_hard():
     """
     Draw a new image in a larger dataset of animals and allows the user to guess the name of the animal in the image.
-    
+
     Supported HTTP Methods:
         - GET: Displays a new image.
         - POST: Validates the user-provided answer.
@@ -432,6 +426,21 @@ def replay_hard_clock():
 
 @blueprint.route('/upload_images_hard_clock', methods=['POST'])
 def upload_images_hard_clock():
+    """
+    Handles image upload via a POST request. The images uploaded go in the animals10 dataset.
+
+    Expects images in the 'images' field of the request. Displays flash messages for
+    no files uploaded or all files having empty filenames. Valid files are saved to
+    UPLOAD_FOLDER after security checks.
+
+    Returns:
+        flask.redirect: Redirects to 'public.generate_image' after processing the upload.
+
+    Flash Messages:
+        - 'Aucun fichier téléchargé': No files included in the request.
+        - 'Aucun fichier sélectionné': All included files have empty filenames.
+        - 'Images téléchargées avec succès': Successful upload of images.
+    """
     if 'images' not in request.files:
         flash('Aucun fichier téléchargé')
         return redirect(url_for('public.generate_image_hard_clock'))
@@ -837,7 +846,7 @@ def guessai():
         if ai:
             if is_ia:
                 congratulations_message = "Félicitations ! C'était de IA"
-            else:        
+            else:      
                 congratulations_message = "Perdu ! C'était de IA "
         else:
             if is_ia:

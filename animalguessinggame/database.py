@@ -96,9 +96,7 @@ class Score(db.Model):
         self.score_value = score_value
 
     def save(self):
-        """
-        Save the score to the database.
-        """
+        """Save the score to the database."""
         db.session.add(self)
         db.session.commit()
         
@@ -145,9 +143,7 @@ class ScoreHard(db.Model):
         self.score_value = score_value
 
     def save(self):
-        """
-        Save the score to the database.
-        """
+        """Save the score to the database."""
         db.session.add(self)
         db.session.commit()
 
@@ -195,9 +191,7 @@ class ScoreHardClock(db.Model):
         self.score_value = score_value
 
     def save(self):
-        """
-        Save the score to the database.
-        """
+        """Save the score to the database."""
         db.session.add(self)
         db.session.commit()
 
@@ -244,9 +238,7 @@ class ScoreNum(db.Model):
         self.score_value = score_value
 
     def save(self):
-        """
-        Save the score to the database.
-        """
+        """Save the score to the database."""
         db.session.add(self)
         db.session.commit()
 
