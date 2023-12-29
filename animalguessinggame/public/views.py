@@ -466,8 +466,9 @@ def upload_images_hard_clock():
 @blueprint.route('/generate_number/', methods=['GET', 'POST'])
 def generate_number():
     """
-    Generates a new number or draw a number in a dataset of numbers (according to the method choosen by the player)
-    and allows the user to guess the name of the animal in the image.
+    Generates a new number or draw a number in a dataset of numbers (according to the method choosen by the player).
+
+    It allows the user to guess the name of the animal in the image.
 
     Supported HTTP Methods:
         - GET: Displays a new image.
@@ -553,8 +554,7 @@ def replay_number():
 @blueprint.route('/toggle_method/', methods=['POST'])
 def toggle_method():
     """
-    Toggles between two methods for either generating random numbers or drawing randomly numbers in a dataset in the
-    session.
+    Toggles between two methods for either generating random numbers or drawing randomly numbers in a dataset.
 
     The function switches between 'get_random_gen_number_path' and 'get_random_number_path' methods
     to display random numbers and updates the session accordingly.
