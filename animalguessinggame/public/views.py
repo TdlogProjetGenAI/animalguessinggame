@@ -32,8 +32,8 @@ blueprint = Blueprint("public", __name__, static_folder="../static")
 
 class Compt():
     """
-    A simple class representing a global counter which will be used for the storage of generated number in order
-    to avoid the storage of all the data generated but just the useful one.
+    A simple class representing a global counter which will be used for the storage of generated number in order to
+    avoid the storage of all the data generated but just the useful one.
 
     Attributes:
     - k (int): The current value of the counter.
@@ -189,10 +189,11 @@ def generate_image():
     session['current_image'] = image_path
     session['score'] = score
 
-    return render_template('public/image_page.html', image_path=image_path, 
-                           congratulations_message=congratulations_message, form=form, 
-                           score=score, top_scores=top_scores, play_win_sound=play_win_sound, 
+    return render_template('public/image_page.html', image_path=image_path,
+                           congratulations_message=congratulations_message, form=form,
+                           score=score, top_scores=top_scores, play_win_sound=play_win_sound,
                            sound_file=sound_file)
+
 
 
 @blueprint.route('/replay/', methods=['GET'])
@@ -213,7 +214,7 @@ def replay():
 
     session['attempts'] = 3
     session['current_image'] = get_random_image_path()
-    session['win'] = False  
+    session['win'] = False 
     session['played'] = False
     return redirect(url_for('public.generate_image'))
 
@@ -225,7 +226,7 @@ def liste_animals10():
     Returns:
         flask.render_template: HTML page showing the list of 10 animals and the current score.
     """
-    animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 
+    animals10_dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat",
                       6: "vache", 7: "mouton", 8: "araignée", 9: "écureuil"}
     score = session.get('score', 0)
     return render_template('public/liste_animals10.html', animals10_dict=animals10_dict, score=score)
@@ -269,7 +270,7 @@ def generate_image_hard():
         anws = classifie_animals90(image_path)
         if prompt_value == anws[0] or prompt_value == anws[1]:
             congratulations_message = "Félicitations, vous avez gagné !"
-            win = True        
+            win = True
             if attempts == 3 and not played:
                 score += 8
             elif attempts == 2 and not played:
@@ -335,15 +336,15 @@ def liste_animals90():
     """
 
     animals90 = [
-        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'boeuf', 
+        'abeille', 'aigle', 'âne', 'antilope', 'baleine', 'bécasse', 'blaireau', 'bison', 'boeuf',
         'calao', 'canard', 'cerf', 'chauve-souris', 'chat', 'chèvre', 'chenille', 'cheval', 'chien', 'chimpanzé',
         'chouette', 'cochon', 'coyote', 'crapaud', 'crabe', 'coccinelle', 'cygne', 'dauphin', 'dinde', 'écureuil',
         'éléphant', 'étoile de mer', 'flamant rose', 'fourmi', 'gazelle', 'girafe', 'gorille', 'guépard', 'guêpe',
         'hamster', 'hérisson', 'hippopotame', 'hirondelle', 'huître', 'hyène', 'kangourou', 'koala',
         'léopard', 'lion', 'loup', 'loutre', 'méduse', 'mille-pattes', 'mouche', 'mouton', 'moineau', 'moustique',
         'mule', 'opossum', 'orang-outan', 'oie', 'okapi', 'ours', 'panda', 'papillon', 'papillon de nuit', 'perroquet',
-        'phoque', 'pic-vert', 'pigeon', 'pingouin', 'poisson rouge', 'porc-épic', 'ragondin', 'rat', 'raton laveur', 
-        'renard', 'renne', 'requin', 'salamandre', 'sanglier', 'scarabée', 'serpent', 'souris', 'sauterelle', 'singe', 
+        'phoque', 'pic-vert', 'pigeon', 'pingouin', 'poisson rouge', 'porc-épic', 'ragondin', 'rat', 'raton laveur',
+        'renard', 'renne', 'requin', 'salamandre', 'sanglier', 'scarabée', 'serpent', 'souris', 'sauterelle', 'singe',
         'tigre', 'tortue', 'vache', 'wombat', 'zèbre'
     ]
     animals90_dict = {i: animal for i, animal in enumerate(animals90)}
@@ -403,7 +404,7 @@ def generate_image_hard_clock():
                            congratulations_message=congratulations_message, form=form, score_clock=score_clock)
 
 @blueprint.route('/replay_hard_clock', methods=['GET'])
-def replay_hard_clock(): 
+def replay_hard_clock():
     """
     Updates the image when the "Changer d'image" button is pressed.
 
@@ -521,8 +522,8 @@ def generate_number():
     session['score'] = score
     session['win'] = win
     session['played'] = played
-    return render_template('public/number_page.html', images_list_path=images_list_path, 
-                           congratulations_message=congratulations_message, form=form, 
+    return render_template('public/number_page.html', images_list_path=images_list_path,
+                           congratulations_message=congratulations_message, form=form,
                            score=score, top_scores=top_scores)
 
 @blueprint.route('/replay_number/', methods=['GET'])
@@ -551,8 +552,8 @@ def replay_number():
 @blueprint.route('/toggle_method/', methods=['POST'])
 def toggle_method():
     """
-    Toggles between two methods for either generating random numbers or drawing randomly numbers in a dataset in
-    the session.
+    Toggles between two methods for either generating random numbers or drawing randomly numbers in a dataset in the
+    session.
 
     The function switches between 'get_random_gen_number_path' and 'get_random_number_path' methods
     to display random numbers and updates the session accordingly.
@@ -722,8 +723,9 @@ def allowed_file(filename):
 @blueprint.route('/upload_images', methods=['POST'])
 def upload_images():
     """
-    Handles image upload via a POST request. The images uploaded go in the animals10 dataset.
+    Handles image upload via a POST request.
 
+    The images uploaded go in the animals10 dataset.
     Expects images in the 'images' field of the request. Displays flash messages for
     no files uploaded or all files having empty filenames. Valid files are saved to
     UPLOAD_FOLDER after security checks.
@@ -758,8 +760,9 @@ def upload_images():
 @blueprint.route('/upload_images_hard', methods=['POST'])
 def upload_images_hard():
     """
-    Handles image upload via a POST request. The images uploaded go in the animals90 dataset.
+    Handles image upload via a POST request.
 
+    The images uploaded go in the animals90 dataset.
     Expects images in the 'images' field of the request. Displays flash messages for
     no files uploaded or all files having empty filenames. Valid files are saved to
     UPLOAD_FOLDER after security checks.
@@ -789,7 +792,9 @@ def upload_images_hard():
 @blueprint.route('/upload_images_number', methods=['POST'])
 def upload_images_number():
     """
-    Handles image upload via a POST request. The images uploaded go in the number dataset.
+    Handles image upload via a POST request.
+
+    The images uploaded go in the number dataset.
 
     Expects images in the 'images' field of the request. Displays flash messages for
     no files uploaded or all files having empty filenames. Valid files are saved to
