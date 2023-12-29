@@ -348,7 +348,8 @@ def liste_animals90():
         'renard', 'renne', 'requin', 'salamandre', 'sanglier', 'scarabée', 'serpent', 'souris', 'sauterelle', 'singe',
         'tigre', 'tortue', 'vache', 'wombat', 'zèbre'
     ]
-    animals90_dict = {i: animal for i, animal in enumerate(animals90)}
+    animals90_dict = {i: animal for i, animal in enumerate(animals90)
+                      }
     return render_template('public/liste_animals90.html', animals90_dict=animals90_dict)
 
 # ############Clock#####################
