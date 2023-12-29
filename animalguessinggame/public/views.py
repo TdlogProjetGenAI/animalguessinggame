@@ -32,7 +32,9 @@ blueprint = Blueprint("public", __name__, static_folder="../static")
 
 class Compt():
     """
-    A simple class representing a global counter which will be used for the storage of generated number in order to
+    A simple class representing a global counter.
+
+    It will be used for the storage of generated number in order to
     avoid the storage of all the data generated but just the useful one.
 
     Attributes:
@@ -195,7 +197,6 @@ def generate_image():
                            sound_file=sound_file)
 
 
-
 @blueprint.route('/replay/', methods=['GET'])
 def replay():
     """
@@ -298,8 +299,8 @@ def generate_image_hard():
     session['win'] = win
     session['played'] = played
     session['score'] = score
-    return render_template('public/image_page_hard.html', image_path=image_path, 
-                           congratulations_message=congratulations_message, form=form, 
+    return render_template('public/image_page_hard.html', image_path=image_path,
+                           congratulations_message=congratulations_message, form=form,
                            score=score, top_scores=top_scores)
 
 @blueprint.route('/replay_hard', methods=['GET'])
@@ -365,7 +366,7 @@ def reset_score_hard_clock():
 
 
 @blueprint.route('/generate_image_hard_clock', methods=['GET', 'POST'])
-def generate_image_hard_clock():   
+def generate_image_hard_clock():
     """
     Generates an image for the game, keeps track of the score, generates a new image when ann answer is submitted.
 
@@ -860,7 +861,7 @@ def guessai():
                 congratulations_message = "Félicitations ! Ce n'était pas de IA"
 
     session['current_image_guessai'] = image_path
-    return render_template('public/guessai.html', image_path=image_path, 
+    return render_template('public/guessai.html', image_path=image_path,
                            congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_guessai/', methods=['GET'])
@@ -923,7 +924,7 @@ def guessai_hard():
 
         session.pop('current_image_guess_hard', None)
 
-    return render_template('public/guessai_hard.html', image_path=image_path, 
+    return render_template('public/guessai_hard.html', image_path=image_path,
                            congratulations_message=congratulations_message, form=form)
 
 @blueprint.route('/replay_new_game_hard/', methods=['GET'])
