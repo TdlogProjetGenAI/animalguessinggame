@@ -159,7 +159,7 @@ def generate_image():
             congratulations_message = "Félicitations, vous avez gagné !"
             win = True
             play_win_sound = True
-            sound_file = f'sound_animals10/{anws[0]}.mp3'         
+            sound_file = f'sound_animals10/{anws[0]}.mp3'
             if attempts == 3 and not played:
                 score += 8
             elif attempts == 2 and not played:
@@ -215,7 +215,7 @@ def replay():
 
     session['attempts'] = 3
     session['current_image'] = get_random_image_path()
-    session['win'] = False 
+    session['win'] = False
     session['played'] = False
     return redirect(url_for('public.generate_image'))
 
@@ -849,11 +849,11 @@ def guessai():
     congratulations_message = None
 
     if form.validate_on_submit():
-        is_ia = form.is_ia.data  
+        is_ia = form.is_ia.data
         if ai:
             if is_ia:
                 congratulations_message = "Félicitations ! C'était de IA"
-            else:      
+            else:
                 congratulations_message = "Perdu ! C'était de IA "
         else:
             if is_ia:
@@ -911,7 +911,7 @@ def guessai_hard():
     congratulations_message = None
 
     if form.validate_on_submit():
-        is_ia = form.is_ia.data  
+        is_ia = form.is_ia.data
 
         ground_truth = session.get('ground_truth_hard')
         if ground_truth is None:
