@@ -47,11 +47,11 @@ class Compt():
     """
 
     def __init__(self):
-        """ Initialize the counter with a value of 0. """
+        """Initialize the counter with a value of 0."""
         self.k = 0
 
     def incr(self):
-        """ Increment the counter by 1. """
+        """Increment the counter by 1."""
         self.k += 1
 
     def value(self):
@@ -64,7 +64,7 @@ class Compt():
         return self.k
 
     def value_to_zero(self):
-        """ Reset the counter to zero. """
+        """Reset the counter to zero."""
         self.k = 0
 
 

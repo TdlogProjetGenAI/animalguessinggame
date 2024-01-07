@@ -54,8 +54,8 @@ class GenerateImageFormIA(FlaskForm):
     """
 
     is_ia = SubmitField('IA')
-    username = StringField('Username') 
-    password = PasswordField('Password')  
+    username = StringField('Username')
+    password = PasswordField('Password')
     prompt = StringField('Prompt')
     submit = SubmitField('Soumettre')
 
@@ -72,7 +72,7 @@ class GenerateImageForm(FlaskForm):
     Inherit from FlaskForm.
     """
 
-    username = StringField('Username') 
-    password = PasswordField('Password')  
+    username = StringField('Username')
+    password = PasswordField('Password')
     prompt = StringField('Prompt')
     submit = SubmitField('Soumettre')
