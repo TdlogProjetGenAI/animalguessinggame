@@ -488,7 +488,7 @@ def generate_number():
     attempts = session.get('attempts_number', 3)
     win = session.get('win', False)
     played = session.get('played', False)
-    scoreNum = session.get('scoreNum', 0)
+    scorenum = session.get('scorenum', 0)
     top_scores = ScoreNum.get_top_scores()
 
     if attempts > 0 and form.validate_on_submit():
@@ -499,11 +499,11 @@ def generate_number():
             win = True
 
             if attempts == 3 and not played:
-                scoreNum += 8
+                scorenum += 8
             elif attempts == 2 and not played:
-                scoreNum += 5
+                scorenum += 5
             elif attempts == 1 and not played:
-                scoreNum += 3
+                scorenum += 3
             played = True
 
         else:
@@ -511,9 +511,9 @@ def generate_number():
             if attempts == 0:
                 congratulations_message = f"Dommage. La réponse était {anws[0]}."
                 user_id = current_user.id if current_user.is_authenticated else "invite"
-                new_score = ScoreNum(user_id=user_id, score_value=scoreNum)
+                new_score = ScoreNum(user_id=user_id, score_value=scorenum)
                 new_score.save()
-                scoreNum = 0
+                scorenum = 0
                 played = True
             elif (distance_levenstein(prompt_value, anws[0]) <= 2 or distance_levenstein(prompt_value, anws[1]) <= 2):
                 congratulations_message = f"Tu chauffes ! Il vous reste {attempts} essais."
@@ -522,12 +522,12 @@ def generate_number():
         top_scores = ScoreNum.get_top_scores()
     session['attempts_number'] = attempts
     session['current_images'] = images_list_path
-    session['scoreNum'] = scoreNum
+    session['scorenum'] = scorenum
     session['win'] = win
     session['played'] = played
     return render_template('public/number_page.html', images_list_path=images_list_path,
                            congratulations_message=congratulations_message, form=form,
-                           scoreNum=scoreNum, top_scores=top_scores)
+                           scorenum=scorenum, top_scores=top_scores)
 
 @blueprint.route('/replay_number/', methods=['GET'])
 def replay_number():
@@ -543,10 +543,10 @@ def replay_number():
     if not win:
         # L'utilisateur n'a pas encore gagné, réinitialisez le score
         user_id = current_user.id if current_user.is_authenticated else "invite"
-        new_score = ScoreNum(user_id=user_id, score_value=session['scoreNum'])
+        new_score = ScoreNum(user_id=user_id, score_value=session['scorenum'])
         new_score.save()
         top_scores = ScoreNum.get_top_scores() # noqa
-        session['scoreNum'] = 0
+        session['scorenum'] = 0
     session['win'] = False  # Réinitialisez la variable win à False
     session['played'] = False
     return redirect(url_for('public.generate_number'))
