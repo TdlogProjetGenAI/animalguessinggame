@@ -2,7 +2,6 @@
 
 from animalguessinggame.public.classif_animals10 import concat, classifie_animals10
 from animalguessinggame.public.levenstein import distance_levenstein
-import animalguessinggame.public.classif_animals10
 
 def test_concat():
     """Test concat with 5236."""
