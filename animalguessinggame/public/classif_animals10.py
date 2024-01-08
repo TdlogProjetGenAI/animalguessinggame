@@ -152,8 +152,7 @@ def classifie_animals10(image_path):
     Returns:
         list: A list containing the predicted class label in French and English.
     """
-    model_chemin = os.path.join(current_app.root_path, 'models', 'classifierVF_animals10.pt')
-    model = torch.load(model_chemin, map_location='cpu')
+    model = torch.load('animalguessinggame/models/classifierVF_animals10.pt', map_location='cpu')
     model.eval()
     image_path = 'animalguessinggame/static'+image_path
     image = Image.open(image_path)
