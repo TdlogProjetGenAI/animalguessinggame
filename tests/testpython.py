@@ -1,14 +1,14 @@
 """Test for python fonctions."""
 
 import unittest
-import UnitTest.classif_animals10 as mp
+import UnitTest.classif_animals10
 
-class testconcat(unittest.TestCase):
+class TestConcat(unittest.TestCase):
     """Test for concat fonction."""
 
-    def testConcat(self):
+    def testconcat(self):
         """Test with 5236."""
-        r = mp.concat([5,2,3,6])
+        r = UnitTest.classif_animals10.concat([5,2,3,6])
         self.assertEqual(r, "cinq mille deux cent trente six")
 
 if __name__ == "__main__":
