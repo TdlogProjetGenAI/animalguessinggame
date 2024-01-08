@@ -514,3 +514,61 @@ digits = {0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 's
 tens = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty', 6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'}
 teens = {0: 'ten', 1: 'eleven', 2: 'twelve', 3: 'thirteen', 4: 'fourteen', 5: 'fifteen', 6: 'sixteen', 7: 'seventeen', 
          8: 'eighteen', 9: 'nineteen'}
+
+"""
+Ce code a été utilisé sur Google colab pour générer nos images artificielles de photos ou peinture.
+
+    from tensorflow import keras
+    import keras_cv
+    import matplotlib.pyplot as plt
+    from PIL import Image
+    from google.colab import drive
+    drive.mount('/content/gdrive')
+
+    model = keras_cv.models.StableDiffusion(img_height=512,img_width=512,jit_compile=True)
+    image=model.text_to_image(prompt="voiture",batch_size=1)
+
+    plt.imshow(image[0])
+    plt.axis("off")
+
+    elem = [
+        "Arbre", "Voiture", "Mer", "Plage", "Pomme", "Ordinateur", "Montagne", "Lampe", "Chien", "Café",
+        "Livre", "Avion", "Soleil", "Étoiles", "Tasse", "Chaussures", "Parc", "Horloge", "Papillon", "Téléphone",
+        "Lune", "Piano", "Océan", "Chaise", "Télévision", "Appareil photo", "Pizza", "Fleurs", "Pont", "Écouteurs",
+        "Vélo", "Lunettes de soleil", "Lac", "Chat", "Guitare", "Sac à dos", "Nuages", "Bus", "Feu de camp", "Trousse",
+        "Journal", "Ballon", "Porte", "Feuille", "Échelle", "Bureau", "Parapluie", "Caméra", "Portefeuille", "Champ",
+        "Table", "Arc-en-ciel", "Microphone", "Légumes", "Plante", "Piscine", "Papier", "Globe", "Veste", "Animaux sauvages",
+        "Casquette", "Cour", "Champignon", "Feu de circulation", "Bulles", "Miroir", "Bateau", "Chalet", "Évier",
+        "Pont suspendu", "Carte", "Glace", "Château de sable", "Tennis", "Boussole", "Chemineé", "Gâteau", "Collier",
+        "Radio", "Ampoule", "Clé", "Aspirateur", "Skateboard", "Bouteille", "Voie ferrée", "Épices", "Brosse à dents",
+        "Réfrigérateur", "Nuage de pluie", "Statue", "Sac à main", "Crayon", "Douche", "Couronne", "Gants", "Croissant",
+        "Fusée", "Table de picnic", "Volcan", "Tapis"
+    ]
+    k=0
+    for x in elem:
+    k+=1
+    prompt= f'{x}' + ' super réaliste'
+    print(prompt)
+    image=model.text_to_image(prompt= prompt,batch_size=1)
+    plt.imshow(image[0])
+    plt.axis("off")
+    plt.savefig(f'/content/gdrive/My Drive/IA/{k}.png')
+
+
+
+    elem = [
+    "Émotion", "Couleurs pastel", "Mélodie de la nature", "Port",
+        "Horizon infini", "Soleil levant", "Douce brise"
+    ]
+
+    k=0
+    for x in elem:
+    k+=1
+    prompt= 'peinture ' + f'{x}' + ' façon Monet '
+    print(prompt)
+    image=model.text_to_image(prompt= prompt,batch_size=1)
+    plt.imshow(image[0])
+    plt.axis("off")
+    plt.savefig(f'/content/gdrive/My Drive/IA/{k}_monet.png')
+
+"""
