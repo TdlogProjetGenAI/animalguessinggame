@@ -1,9 +1,24 @@
-
 {% extends "layout.html" %}
+
 {% block content %}
+    <style>
+        body {
+            background: url('/static/images_home/fond3.jpg');
+            background-size: cover; 
+            color: rgb(255, 255, 255);
+        }
+        .container {
+            border-radius: 10px;
+            background-color: rgba(79, 77, 77, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+            padding: 20px; 
+        }
+    </style>
+
+
     <div class="container">
         <h1>Welcome {{ current_user.username }}</h1>
-        <h3>This is the members-only page.</h3>
+        <h3>This is the members-only page. You have access to your personnel scoring.
+            Try to beat the top scores of our games !!! </h3>
     </div>
 {% endblock %}
-
