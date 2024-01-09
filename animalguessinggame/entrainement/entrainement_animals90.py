@@ -145,9 +145,9 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
 
         print("Epoch", epoch + 1, "Average Loss:", overall_loss / len(train_loader.dataset))
 
-    X = [k for k in range(epochs)]
-    plt.plot(X, loss_train_per_epoch, color="red", label="train")
-    plt.plot(X, loss_test_per_epoch, color="blue", label="test")
+    abs = [k for k in range(epochs)]
+    plt.plot(abs, loss_train_per_epoch, color="red", label="train")
+    plt.plot(abs, loss_test_per_epoch, color="blue", label="test")
     plt.legend()
     plt.show()
 
@@ -200,7 +200,8 @@ def model_evaluation(model, test_loader, device):
 
 
 def display(model, test_loader, device):
-    """Display each image along with its true label and model's prediction.
+    """
+    Display each image along with its true label and model's prediction.
 
     Args:
     - model : Trained model to be evaluated.

@@ -1,4 +1,4 @@
-""" This code was used on Google Colab then adpated to train our classfier for MNIST database."""
+"""This code was used on Google Colab then adpated to train our classfier for MNIST database."""
 
 import torch
 import torch.nn as nn
@@ -19,6 +19,7 @@ test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 batch_size = 64
 
 class ClassifierMNIST(nn.Module):
+    """MNSIT classifier for MNIST dataset."""
     def __init__(self, num_classes=10):
         """
         Initialize the MNIST Classifier.
@@ -133,9 +134,9 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
 
         print("Epoch", epoch + 1, "Average Loss:", overall_loss / len(train_loader.dataset))
 
-    X = [k for k in range(epochs)]
-    plt.plot(X, loss_train_per_epoch, color="red", label="train")
-    plt.plot(X, loss_test_per_epoch, color="blue", label="test")
+    abs = [k for k in range(epochs)]
+    plt.plot(abs, loss_train_per_epoch, color="red", label="train")
+    plt.plot(abs, loss_test_per_epoch, color="blue", label="test")
     plt.legend()
     plt.show()
 

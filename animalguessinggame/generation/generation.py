@@ -1,4 +1,4 @@
-""" This code was used to generate artificial pictures on Google Colab  """
+"""This code was used to generate artificial pictures on Google Colab."""
 
 import keras_cv
 import matplotlib.pyplot as plt
