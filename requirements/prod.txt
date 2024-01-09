@@ -40,9 +40,13 @@ Flask-DebugToolbar==0.13.1
 environs==9.5.0
 
 
+# AI
 Pillow>=8.4.0
 flake8>=4.0.1
-
 torch>=1.10.0
 torchvision>=0.10.1
 numpy>=1.21
+tensorflow>=2.7.0
+keras_cv>=0.1.0
+matplotlib>=3.4.3
+
