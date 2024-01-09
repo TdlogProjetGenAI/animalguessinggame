@@ -1,7 +1,7 @@
-""" 
-This script was adapted from code initially used on Google Colab to train a classifier for the animals10 database.
+"""
+This script was adapted from code initially used on Google Colab to train a classifier for the animals90 database.
 
-The script defines a ResNet-based classifier, trains it on the animals10 dataset, and evaluates its performance.
+The script defines a ResNet-based classifier, trains it on the animals90 dataset, and evaluates its performance.
 
 """
 
@@ -32,17 +32,17 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ResNetClassifier(nn.Module):
     """
-    ResNet-based classifier for animals10 dataset.
+    ResNet-based classifier for animals90 dataset.
 
     Args:
     - num_classes (int): Number of output classes.
 
     Attributes:
-    - resnet (torchvision.models.ResNet): ResNet18 model with modified fully connected layer.
+    - resnet : ResNet18 model with modified fully connected layer.
 
     """
 
-    def __init__(self, num_classes=10):
+    def __init__(self, num_classes=90):
         """
         Initialize the Resnet Classifier.
 
@@ -140,7 +140,7 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
         loss_test_per_epoch.append(current_test_loss)
 
         if epoch >= 1 and current_test_loss < loss_test_per_epoch[-2]:
-            file_path = os.path.join('animalguessinggame', 'models', 'classifierVF_animals10.pt')
+            file_path = os.path.join('animalguessinggame', 'models', 'classifierVF_animals90.pt')
             torch.save(model, file_path)
 
         print("Epoch", epoch + 1, "Average Loss:", overall_loss / len(train_loader.dataset))
@@ -153,6 +153,20 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
 
     return overall_loss
 
+
+animaux_liste = [
+    'antilope', 'blaireau', 'chauve-souris', 'ours', 'abeille', 'scarabée', 'bison', 'sanglier', 'papillon', 'chat',
+    'chenille', 'chimpanzé', 'cafard', 'vache', 'coyote', 'crabe', 'corbeau', 'cerf', 'chien', 'dauphin', 'âne',
+    'libellule', 'canard', 'aigle', 'éléphant', 'flamant rose', 'mouche', 'renard', 'chèvre', 'poisson rouge', 'oie',
+    'gorille', 'sauterelle', 'hamster', 'lièvre', 'hérisson', 'hippopotame', 'calao', 'cheval', 'colibri', 'hyène',
+    'méduse', 'kangourou', 'koala', 'coccinelles', 'léopard', 'lion', 'lézard', 'homard', 'moustique',
+    'papillon de nuit', 'souris', 'pieuvre', 'okapi', 'orang-outan', 'loutre', 'hibou', 'bœuf', 'huître', 'panda',
+    'perroquet', 'pélican', 'pingouin', 'cochon', 'pigeon', 'porc-épic', 'opossum', 'raton laveur', 'rat', 'renne',
+    'rhinocéros', 'bécasse', 'hippocampe', 'phoque', 'requin', 'mouton', 'serpent', 'moineau', 'calmar', 'écureuil',
+    'étoile de mer', 'cygne', 'tigre', 'dinde', 'tortue', 'baleine', 'loup', 'wombat', 'pic-vert', 'zèbre'
+]
+
+dict = {i: animal for i, animal in enumerate(animaux_liste)}
 
 def model_evaluation(model, test_loader, device):
     """
@@ -169,8 +183,6 @@ def model_evaluation(model, test_loader, device):
     """
     val = 0
     u = 0
-    dict = {0: "chien", 1: "cheval", 2: "elephant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache",
-            7: "mouton", 8: "araignée", 9: "écureuil"}
 
     for batch_idx, (x, labels) in enumerate(test_loader):
         x = x.to(device)
@@ -212,7 +224,7 @@ def display(model, test_loader, device):
 
 
 if __name__ == "__main__":
-    resnet_model = ResNetClassifier(num_classes=10)
+    resnet_model = ResNetClassifier(num_classes=90)
     resnet_model = resnet_model.to(device)
 
     optimizer_resnet = optim.Adam(resnet_model.parameters(), lr=1e-3)
