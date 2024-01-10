@@ -1,7 +1,7 @@
 """Script for the VAE which was run on Imagine Server."""
 
 import torch.nn as nn
-import torch.nn.functional as F
+import torch.nn.functional as f
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 import torch.optim as optim
@@ -150,7 +150,7 @@ def loss_function(x, recon_x, mu, logvar):
     Returns:
         torch.Tensor: Loss value.
     """
-    bce = F.binary_cross_entropy(recon_x, x, reduction='sum')
+    bce = f.binary_cross_entropy(recon_x, x, reduction='sum')
     kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return bce + kld
 

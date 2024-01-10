@@ -73,9 +73,7 @@ class Denoising(nn.Module):
     """
 
     def __init__(self):
-        """
-        Initialize the denoising model with a convolutional neural network.
-        """
+        """Initialize the denoising model with a convolutional neural network."""
         super(Denoising, self).__init__()
         self.NN = nn.Sequential(
             nn.Conv2d(input_conv, 9, kernel_size, stride),
@@ -107,9 +105,9 @@ class Denoising(nn.Module):
         return self.NN(x)
 
 
-class Denoising_lin(nn.Module):
+class DenoisingLin(nn.Module):
     """
-    Denoising_lin class using linear layers.
+    DenoisingLin class using linear layers.
 
     Attributes:
         f1 (nn.Linear): First linear layer.
@@ -117,16 +115,14 @@ class Denoising_lin(nn.Module):
     """
 
     def __init__(self):
-        """
-        Initialize the Denoising_lin model with linear layers.
-        """
-        super(Denoising_lin, self).__init__()
+        """Initialize the DenoisingLin model with linear layers."""
+        super(DenoisingLin, self).__init__()
         self.f1 = nn.Linear(input_conv * input_dim**2, input_conv * input_dim**2)
         self.f2 = nn.Linear(input_conv * input_dim**2, input_conv * input_dim**2)
 
     def forward(self, x):
         """
-        Forward pass through the Denoising_lin.
+        Forward pass through the DenoisingLin.
 
         Args:
             x (torch.Tensor): Input tensor.
@@ -143,9 +139,9 @@ class Denoising_lin(nn.Module):
         return x2
 
 
-class Denoising_hybride(nn.Module):
+class DenoisingHybride(nn.Module):
     """
-    Denoising_hybride class using both convolutional and linear layers.
+    DenoisingHybride class using both convolutional and linear layers.
 
     Attributes:
         NN (nn.Sequential): Convolutional neural network model.
@@ -154,8 +150,8 @@ class Denoising_hybride(nn.Module):
     """
 
     def __init__(self):
-        """Initialize the Denoising_hybride model with both convolutional and linear layers."""
-        super(Denoising_hybride, self).__init__()
+        """Initialize the DenoisingHybride model with both convolutional and linear layers."""
+        super(DenoisingHybride, self).__init__()
         self.NN = nn.Sequential(
             nn.Conv2d(input_conv, 9, kernel_size, stride),
             nn.ReLU(),
@@ -177,7 +173,7 @@ class Denoising_hybride(nn.Module):
 
     def forward(self, x):
         """
-        Forward pass through the Denoising_hybride.
+        Forward pass through the DenoisingHybride.
 
         Args:
             x (torch.Tensor): Input tensor.
@@ -259,7 +255,7 @@ def train(model, optimizer, epochs, device):
     return overall_loss
 
 
-model = Denoising_lin()
+model = DenoisingLin()
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 train(model, optimizer, epochs=15, device=device)
 
