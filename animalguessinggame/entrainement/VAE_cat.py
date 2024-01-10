@@ -1,4 +1,4 @@
-""" Script for the VAE which was run on Imagine Server."""
+"""Script for the VAE which was run on Imagine Server."""
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -150,9 +150,9 @@ def loss_function(x, recon_x, mu, logvar):
     Returns:
         torch.Tensor: Loss value.
     """
-    BCE = F.binary_cross_entropy(recon_x, x, reduction='sum')
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    return BCE + KLD
+    bce = F.binary_cross_entropy(recon_x, x, reduction='sum')
+    kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    return bce + kld
 
 def train(model, optimizer, epochs, device):
     """
@@ -188,9 +188,9 @@ def train(model, optimizer, epochs, device):
             for param_group in optimizer.param_groups:
                 param_group['lr'] /= 5
         if (1 + epoch) % 200 == 0:
-            X = [k for k in range(len(loss_train_per_epoch))]
-            plt.plot(X, loss_train_per_epoch)
-            plt.plot(X, loss_test_per_epoch)
+            abs = [k for k in range(len(loss_train_per_epoch))]
+            plt.plot(abs, loss_train_per_epoch)
+            plt.plot(abs, loss_test_per_epoch)
             torch.save(model.state_dict(), path + "/model" + f"{epoch}" + ".pt")
             plt.savefig(path + "/courbe" + f"{epoch}" + ".png")
             plt.clf()
