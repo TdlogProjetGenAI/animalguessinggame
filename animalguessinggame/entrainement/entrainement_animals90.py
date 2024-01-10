@@ -224,11 +224,10 @@ def display(model, test_loader, device):
             plt.show()
 
 
-if __name__ == "__main__":
-    resnet_model = ResNetClassifier(num_classes=90)
-    resnet_model = resnet_model.to(device)
+resnet_model = ResNetClassifier(num_classes=90)
+resnet_model = resnet_model.to(device)
 
-    optimizer_resnet = optim.Adam(resnet_model.parameters(), lr=1e-3)
-    criterion_resnet = nn.CrossEntropyLoss()
+optimizer_resnet = optim.Adam(resnet_model.parameters(), lr=1e-3)
+criterion_resnet = nn.CrossEntropyLoss()
 
-    train(resnet_model, optimizer_resnet, criterion_resnet, train_loader, test_loader, epochs=5, device=device)
+train(resnet_model, optimizer_resnet, criterion_resnet, train_loader, test_loader, epochs=5, device=device)

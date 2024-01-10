@@ -174,14 +174,13 @@ def model_evaluation(model, test_loader, device):
     return (val * 100 / u)
 
 
-if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = ClassifierMNIST(num_classes=10)
-    model = model.to(device)
+model = ClassifierMNIST(num_classes=10)
+model = model.to(device)
 
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
+criterion = nn.CrossEntropyLoss()
 
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    train(model, optimizer, criterion, train_loader, test_loader, epochs=10, device=device)
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
+train(model, optimizer, criterion, train_loader, test_loader, epochs=10, device=device)
