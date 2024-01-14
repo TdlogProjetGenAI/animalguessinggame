@@ -852,14 +852,14 @@ def guessai():
         is_ia = form.is_ia.data
         if ai:
             if is_ia:
-                congratulations_message = "Félicitations ! C'était de IA"
+                congratulations_message = "Gagné ! C'était de IA"
             else:
                 congratulations_message = "Perdu ! C'était de IA "
         else:
             if is_ia:
                 congratulations_message = "Perdu ! Ce n'était pas de IA"
             else:
-                congratulations_message = "Félicitations ! Ce n'était pas de IA"
+                congratulations_message = "Gagné ! Ce n'était pas de IA"
 
     session['current_image_guessai'] = image_path
     return render_template('public/guessai.html', image_path=image_path,
