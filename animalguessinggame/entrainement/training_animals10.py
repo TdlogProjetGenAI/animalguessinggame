@@ -19,7 +19,7 @@ T = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-folder_path = "path/to/the/database"  # Replace with the actual path
+folder_path = "path/to/the/database/raw_img"  # Replace with the actual path
 input_dim = 224
 batch_size = 100
 full_dataset = datasets.ImageFolder(root=folder_path, transform=T)
@@ -187,6 +187,9 @@ def model_evaluation(model, test_loader, device):
     print(u)
 
 
+dict = {0: "chien", 1: "cheval", 2: "éléphant", 3: "papillon", 4: "poule", 5: "chat", 6: "vache", 7: "mouton",
+        8: "araignée", 9: "écureuil"}
+
 def display(model, test_loader, device):
     """
     Display each image along with its true label and model's prediction.
@@ -219,3 +222,5 @@ optimizer_resnet = optim.Adam(resnet_model.parameters(), lr=1e-3)
 criterion_resnet = nn.CrossEntropyLoss()
 
 train(resnet_model, optimizer_resnet, criterion_resnet, train_loader, test_loader, epochs=5, device=device)
+print(model_evaluation(resnet_model, test_loader, device))
+display(resnet_model, test_loader, device)

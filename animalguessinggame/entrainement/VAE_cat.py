@@ -9,8 +9,8 @@ import torch
 import matplotlib.pyplot as plt
 from math import log
 
-path = "/home/tdlog"
-data_path = "/home/tdlog/CAT3"
+path = "/chemin/vers/fichier/ou/enregsitrement/model_figures"
+data_path = "/chemin/vers/donnees"
 transform = transforms.Compose([transforms.Resize((128, 128)), transforms.ToTensor()])
 full_dataset = datasets.ImageFolder(root=data_path, transform=transform)
 test_size = int(0.1 * len(full_dataset))

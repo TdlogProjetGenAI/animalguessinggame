@@ -20,8 +20,10 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-train_set = datasets.ImageFolder(root=folder_path, transform=transform)
+
+train_set = datasets.CIFAR10(root=folder_path, train=True, transform=transform, download=True)
 train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False)
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 

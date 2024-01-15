@@ -230,4 +230,6 @@ resnet_model = resnet_model.to(device)
 optimizer_resnet = optim.Adam(resnet_model.parameters(), lr=1e-3)
 criterion_resnet = nn.CrossEntropyLoss()
 
-train(resnet_model, optimizer_resnet, criterion_resnet, train_loader, test_loader, epochs=5, device=device)
+train(resnet_model, optimizer_resnet, criterion_resnet, train_loader, test_loader, epochs=10, device=device)
+print(model_evaluation(resnet_model, test_loader, device))
+display(resnet_model, test_loader, device)
