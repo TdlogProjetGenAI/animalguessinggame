@@ -1,6 +1,6 @@
 """Test for python fonctions."""
 
-from animalguessinggame.public.classif_animals10 import concat, classifie_animals10
+from animalguessinggame.public.fonctions import concat, classifie_animals10
 from animalguessinggame.public.levenstein import distance_levenstein
 
 def test_concat():

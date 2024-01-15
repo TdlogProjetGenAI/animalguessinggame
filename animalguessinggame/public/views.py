@@ -22,8 +22,8 @@ from animalguessinggame.database import Score, ScoreHard, ScoreHardClock, ScoreN
 from PIL import Image
 import torch
 from flask import session
-from .classif_animals10 import ResNetClassifier, classifie_animals10, classifie_animals90 
-from .classif_animals10 import Classifier_mnist, VAE, classifie_mnist
+from .fonctions import ResNetClassifier, classifie_animals10, classifie_animals90 
+from .fonctions import Classifier_mnist, VAE, classifie_mnist
 from .levenstein import distance_levenstein
 from werkzeug.utils import secure_filename
 
