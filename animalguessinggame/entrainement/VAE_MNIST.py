@@ -1,7 +1,7 @@
 """Script for the VAE which was run to generate MNIST type number."""
 
 import torch.nn as nn
-import torch.nn.functional as F
+import torch.nn.functional as f
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import torch.optim as optim
@@ -19,16 +19,17 @@ train_set = datasets.MNIST(root='./data', train=True, download=True, transform=t
 train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
 class VAE(nn.Module):
+    """
+    Variational Autoencoder (VAE) class.
+
+    Architecture:
+    - Encoder with two linear layers for mean and variance
+    - Reparameterization trick for sampling from the latent space
+    - Decoder with two linear layers for reconstruction
+
+    """
     def __init__(self):
-        """
-        Variational Autoencoder (VAE) class.
-
-        Architecture:
-        - Encoder with two linear layers for mean and variance
-        - Reparameterization trick for sampling from the latent space
-        - Decoder with two linear layers for reconstruction
-
-        """
+        """Initialize the VAE model with encoder, mean, logvar, and decoder."""
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(784, 400)
         self.fc21 = nn.Linear(400, 100)  # mean
@@ -46,7 +47,7 @@ class VAE(nn.Module):
         Output:
         - Tuple containing mean and variance tensors
         """
-        h1 = F.relu(self.fc1(x))
+        h1 = f.relu(self.fc1(x))
         return self.fc21(h1), self.fc22(h1)
 
     def reparameterize(self, mu, logvar):
@@ -74,7 +75,7 @@ class VAE(nn.Module):
         Output:
         - Reconstructed image tensor
         """
-        h3 = F.relu(self.fc3(z))
+        h3 = f.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -104,7 +105,7 @@ def loss_function(x, recon_x, mu, logvar):
     Output:
     - Total loss tensor
     """
-    bce = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
+    bce = f.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
     kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return bce + kld
 

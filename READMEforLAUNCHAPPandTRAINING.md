@@ -45,4 +45,10 @@ modfify the path where you want to put the model and plots of training path = "/
 
 - execute the code, it's training 
 
+VAE_MNIST :
+-execute the code 
+
+
+
+
 
