@@ -13,7 +13,7 @@ Go to `http://localhost:5000`. You will see a pretty welcome screen.
 #### in case of problem with database, remove folder migrations and dev.db in folder instance
 
 Once you have installed your DBMS, run the following to create your app's
-database tables and perform the initial migration
+database tables and perform the initial migration.
 
 ```bash
 flask db init
